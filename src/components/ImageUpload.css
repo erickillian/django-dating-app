@@ -1,0 +1,21 @@
+.cropper-container {
+    position: static;
+    /* Establishes a positioning context */
+}
+
+.cropper-buttons {
+    position: absolute;
+    bottom: 10px;
+    /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    /* Center the buttons container horizontally */
+    z-index: 100;
+    /* Ensure the buttons are above the cropper overlay */
+}
+
+.crop-save-button,
+.crop-discard-button {
+    margin: 5px;
+    /* Additional styling */
+}

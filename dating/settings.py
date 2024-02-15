@@ -8,7 +8,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -36,6 +35,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "phonenumber_field",
     "dating.users",
+    "dating.dating",
 ]
 
 MIDDLEWARE = [
@@ -171,3 +171,13 @@ HCAPTCHA_SECRET_KEY = "0xE51E731D5539Def523E3f2a7Ee7eC0c6570c7F42"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  # your frontend URL
 ]
+
+APPEND_SLASH = False
+
+# Static files include admin css and js, etc.
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+# Media files include user uploaded files like profile pictures
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

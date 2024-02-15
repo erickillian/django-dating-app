@@ -9,7 +9,8 @@ from ipware import get_client_ip
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
-from dating.users.models import UserProfile, IpAddress
+from dating.users.models import UserProfile, UserPicture, IpAddress
+import operator
 
 
 def validate_captcha(response, ip_address):
@@ -58,7 +59,6 @@ class LoginSerializer(serializers.ModelSerializer):
         if not UserProfile.objects.filter(phone_number=phone_number).exists():
             raise serializers.ValidationError("Invalid Phone Number or Password")
 
-        print(authenticate(phone_number=phone_number, password=password))
         if authenticate(phone_number=phone_number, password=password) is None:
             raise serializers.ValidationError(
                 "Could not authenticate with provided credentials"
@@ -94,7 +94,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
 
         validate_password(password)
-
         return attrs
 
     def create(self, validated_data):
@@ -102,14 +101,30 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data["password"]  # Get the password from validated_data
 
         # Create a new user instance and set the password
-        user = UserProfile.objects.create_user(phone_number=phone_number)
+
+        user = UserProfile.objects.create_user(phone_number=phone_number, password="")
         user.set_password(password)
         user.save()
 
         return user
 
 
+class UserPictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPicture
+        fields = ["id", "image"]
+
+
+class ProfilePictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPicture
+        fields = ["id", "in_profile", "profile_order"]
+        extra_kwargs = {"profile_order": {"required": True}}
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    pictures = serializers.SerializerMethodField()
+
     class Meta:
         model = UserProfile
         fields = [
@@ -119,4 +134,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "birth_date",
             "full_name",
             "height",
+            "id",
+            "pictures",
         ]
+
+    def get_pictures(self, obj):
+        pictures = UserPicture.objects.filter(
+            in_profile=True, user_profile__id=obj.id
+        ).order_by("profile_order")[:6]
+        return UserPictureSerializer(pictures, many=True).data

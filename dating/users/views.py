@@ -3,11 +3,19 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import LoginSerializer, RegisterSerializer, UserProfileSerializer
-from .models import UserProfile
+from .serializers import (
+    LoginSerializer,
+    RegisterSerializer,
+    UserProfileSerializer,
+    UserPictureSerializer,
+    ProfilePictureSerializer,
+)
+from .models import UserProfile, UserPicture
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from rest_framework.decorators import action
+from django.db import transaction
 
 
 @api_view(["POST"])
@@ -86,4 +94,72 @@ class UserProfileView(APIView):
         except UserProfile.DoesNotExist:
             return Response(
                 {"detail": "User profile not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class PictureUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = UserPictureSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_profile=request.user)
+            request.user.num_pictures += 1
+            request.user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfilePictureSelectionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        selected_pictures = request.data.get("selected_pictures", [])
+
+        if len(selected_pictures) > 6:
+            return Response(
+                {"detail": "Cannot select more than 6 pictures."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        UserPicture.objects.filter(user_profile=request.user).update(in_profile=False)
+        for order, picture_id in enumerate(selected_pictures):
+            try:
+                picture = UserPicture.objects.get(
+                    id=picture_id, user_profile=request.user
+                )
+                picture.in_profile = True
+                picture.profile_order = order
+                picture.save()
+            except UserPicture.DoesNotExist:
+                return Response(
+                    {"detail": f"Picture ID {picture_id} not found."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        request.user.num_active_pictures = len(selected_pictures)
+        request.user.save()
+        return Response({"detail": "Profile pictures updated."})
+
+
+class UserPicturesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_pictures = UserPicture.objects.filter(user_profile=request.user)
+        serializer = UserPictureSerializer(user_pictures, many=True)
+        return Response(serializer.data)
+
+    def delete(self, request, picture_id):
+        try:
+            picture = UserPicture.objects.get(id=picture_id, user_profile=request.user)
+            picture.delete()
+            request.user.num_pictures -= 1
+            request.user.save()
+            return Response(
+                {"detail": "Picture deleted."}, status=status.HTTP_204_NO_CONTENT
+            )
+        except UserPicture.DoesNotExist:
+            return Response(
+                {"detail": "Picture not found."}, status=status.HTTP_404_NOT_FOUND
             )

@@ -31,9 +31,6 @@ class AuthTestCase(APITestCase):
         response = self.client.post(
             self.register_url, self.registration_data, format="json"
         )
-        print(
-            "\nRESPONSE DATA FROM REGISTRATION:", response.data
-        )  # Add this line to debug
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
             "key" in response.data
@@ -55,7 +52,6 @@ class AuthTestCase(APITestCase):
         response = self.client.post(
             self.register_url, self.registration_data, format="json"
         )
-        # print(response.data)  # Add this line to debug
         token = response.data["key"]
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
 

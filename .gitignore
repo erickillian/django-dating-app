@@ -6,5 +6,9 @@ env/
 
 node_modules
 dating/users/migrations/*
+dating/dating/migrations/*
 dist/bundle.js
 dist/bundle.js.LICENSE.txt
+
+static/
+media/

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserInfo, updateUserInfo } from '../actions/userActions'; // Adjust the import path as needed
+import { fetchUserInfo, updateUserInfo, fetchUserPictures } from '../actions/userActions';
+import ImageUpload from '../components/ImageUpload';
+import PictureComponent from '../components/PictureComponent';
 
 const formFields = {
     full_name: { label: 'Name', type: 'text', options: [] },
@@ -9,12 +11,12 @@ const formFields = {
     sexual_orientation: { label: 'Sexual Orientation', type: 'select', options: ['Straight', 'Gay', 'Bisexual', 'Other', 'Prefer not to say'] },
     location: { label: 'Location', type: 'text', options: [] },
     height: { label: 'Height (in cm)', type: 'number', options: [] },
-    phone_number: { label: 'Phone Number', type: 'text', options: [] }
 };
 
 const ProfilePage = () => {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.user_profile);
+    const pictures = useSelector(state => state.user.user_pictures);
     const loading = useSelector(state => state.user.loading);
     const error = useSelector(state => state.user.error);
 
@@ -29,12 +31,16 @@ const ProfilePage = () => {
     });
 
     useEffect(() => {
-        if (user) {
-            setFormState(user);
-        } else {
+        if (!user) {
             dispatch(fetchUserInfo());
         }
     }, [dispatch, user]);
+
+    useEffect(() => {
+        if (!pictures) {
+            dispatch(fetchUserPictures());
+        }
+    }, [dispatch, pictures]);
 
     const handleChange = (event) => {
         const value = event.target.value === 'Prefer not to say' ? '' : event.target.value;
@@ -77,6 +83,12 @@ const ProfilePage = () => {
                     <button type="submit">Save Changes</button>
                 </form>
             )}
+            <div className="user-pictures">
+                {pictures && pictures.map((picture, index) => (
+                    <PictureComponent key={index} imageUrl={"http://localhost" + picture.image} /> // Adjust the property as per your data structure
+                ))}
+            </div>
+            <ImageUpload />
         </div>
     );
 };

@@ -6,6 +6,9 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from PIL import Image
+import os
+from django.core.exceptions import ValidationError
 
 
 class CustomUserManager(BaseUserManager):
@@ -69,98 +72,8 @@ class UserProfile(AbstractUser):
         blank=False,
         unique=True,
     )
-
-    # User preferences
-    # dating_intention = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Long Term", "Long Term"),
-    #         ("Casual", "Casual"),
-    #         ("Friendship", "Friendship"),
-    #         ("Other", "Other"),
-    #     ],
-    #     blank=True,
-    # )
-    # children = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Want Children", "Want Children"),
-    #         ("Do Not Want Children", "Do Not Want Children"),
-    #         ("Open to Discussion", "Open to Discussion"),
-    #     ],
-    #     blank=True,
-    # )
-    # drug_use = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Never", "Never"),
-    #         ("Sometimes", "Sometimes"),
-    #         ("Regularly", "Regularly"),
-    #     ],
-    #     blank=True,
-    # )
-    # smoking_use = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Never", "Never"),
-    #         ("Sometimes", "Sometimes"),
-    #         ("Regularly", "Regularly"),
-    #     ],
-    #     blank=True,
-    # )
-    # marijuana_use = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Never", "Never"),
-    #         ("Sometimes", "Sometimes"),
-    #         ("Regularly", "Regularly"),
-    #     ],
-    #     blank=True,
-    # )
-    # drinking = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Never", "Never"),
-    #         ("Sometimes", "Sometimes"),
-    #         ("Regularly", "Regularly"),
-    #     ],
-    #     blank=True,
-    # )
-    # political_views = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("Liberal", "Liberal"),
-    #         ("Moderate", "Moderate"),
-    #         ("Conservative", "Conservative"),
-    #         ("Non-Political", "Non-Political"),
-    #     ],
-    #     blank=True,
-    # )  # Open-ended or choices
-    # education_level = models.CharField(
-    #     max_length=100,
-    #     choices=[
-    #         ("High School", "High School"),
-    #         ("Bachelor", "Bachelor"),
-    #         ("Master", "Master"),
-    #         ("Doctorate", "Doctorate"),
-    #         ("Other", "Other"),
-    #     ],
-    #     blank=True,
-    # )
-    # sexual_preference = models.CharField(
-    #     max_length=20,
-    #     choices=[
-    #         ("Men", "Men"),
-    #         ("Women", "Women"),
-    #         ("Both", "Both"),
-    #         ("Other", "Other"),
-    #     ],
-    #     blank=True,
-    # )
-    # max_distance = models.IntegerField(null=True, blank=True)  # Maximum distance in km
-    # age_range = models.CharField(max_length=50, blank=True)  # Example: "25-35"
-    # ethnicity = models.CharField(max_length=100, blank=True)  # Open-ended or choices
-    # religion = models.CharField(max_length=100, blank=True)  # Open-ended or choices
+    num_pictures = models.IntegerField(default=0)
+    num_active_pictures = models.IntegerField(default=0)
 
     USERNAME_FIELD = "phone_number"
     REQUIRED_FIELDS = []
@@ -172,14 +85,38 @@ class UserProfile(AbstractUser):
         return f"{self.phone_number}"
 
 
+def validate_file_extension(value):
+    ext = os.path.splitext(value.name)[1]
+    valid_extensions = [".jpg", ".jpeg"]
+    if not ext.lower() in valid_extensions:
+        raise ValidationError("Unsupported file extension.")
+
+
 class UserPicture(models.Model):
     user_profile = models.ForeignKey(
         UserProfile, related_name="profile_pictures", on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to="profile_pics")
+    in_profile = models.BooleanField(default=False)
+    profile_order = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user_profile.user.username}'s picture"
+        return f"{self.user_profile}'s picture"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Open the image and resize it
+        img = Image.open(self.image.path)
+
+        # Resize the image to 1024x1024
+        img = img.resize((1024, 1024), Image.BILINEAR)
+
+        # Convert to JPG
+        rgb_img = img.convert("RGB")
+
+        # Save the image back to the same path
+        rgb_img.save(self.image.path, format="JPEG", quality=95)
 
 
 class IpAddress(models.Model):

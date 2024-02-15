@@ -26,11 +26,11 @@ services:
       MYSQL_NAME: 'mydatabase'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
-  mailhog:
-    image: mailhog/mailhog
-    ports:
-      - "8025:8025" # Web interface
-      - "1025:1025" # SMTP server
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - "8025:8025" # Web interface
+  #     - "1025:1025" # SMTP server
 
 volumes:
   mysql:
