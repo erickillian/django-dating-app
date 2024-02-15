@@ -10,6 +10,7 @@ Django==5.0.2
 django-allauth==0.57.2
 django-filter==23.5
 django-ipware==6.0.4
+django-phonenumber-field==7.3.0
 djangorestframework==3.14.0
 graphene==3.3
 graphene-django==3.2.0
@@ -19,6 +20,7 @@ idna==3.6
 Markdown==3.5.2
 mysqlclient==2.2.4
 oauthlib==3.2.2
+phonenumbers==8.13.30
 pillow==10.2.0
 promise==2.3
 pycparser==2.21

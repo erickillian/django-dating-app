@@ -30,15 +30,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
     "rest_framework",
     "rest_framework.authtoken",
-    "dj_rest_auth",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "dj_rest_auth.registration",
     "graphene_django",
+    "phonenumber_field",
     "dating.users",
 ]
 
@@ -50,7 +45,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "dating.urls"
@@ -140,22 +134,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
-
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"
-ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -174,26 +156,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-REST_AUTH_REGISTER_SERIALIZERS = {
-    "REGISTER_SERIALIZER": "dating.users.serializers.RegisterSerializer",
-}
-
-REST_AUTH_SERIALIZERS = {
-    "LOGIN_SERIALIZER": "dating.users.serializers.CustomLoginSerializer",
-}
-
 SESSION_COOKIE_AGE = 60 * 60  # 60 minutes sessions "1209600(2 weeks)" by default
 SESSION_SAVE_EVERY_REQUEST = True  # "False" by default
-
-# REST_USE_JWT = True
-# ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'account_email_confirm'
-# ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'account_email_confirm'
-
-REST_FRAMEWORK = {
-    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
-}
-
-SITE_ID = 1
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "localhost"

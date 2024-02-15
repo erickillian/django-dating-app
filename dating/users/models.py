@@ -1,9 +1,41 @@
 from django.db import models
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
+
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, phone_number, password):
+        if not phone_number:
+            raise ValueError("The Phone Number must be set")
+        user = self.model(phone_number=phone_number)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, phone_number, password):
+        user = self.create_user(phone_number, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
 
 
 class UserProfile(AbstractUser):
+    # Remove the original username field
+    username = None
+    first_name = None
+    last_name = None
+    email = None
+    # is_staff = None
+    # password = None
+
+    full_name = models.CharField(max_length=50, blank=True)
+
     # Personal Information
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(
@@ -33,7 +65,12 @@ class UserProfile(AbstractUser):
         regex=r"^\+?1?\d{9,15}$",
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
     )
-    phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True)
+    phone_number = models.CharField(
+        validators=[phone_regex],
+        max_length=17,
+        blank=False,
+        unique=True,
+    )
 
     # User preferences
     # dating_intention = models.CharField(max_length=50, choices=[('Long Term', 'Long Term'), ('Casual', 'Casual'), ('Friendship', 'Friendship'), ('Other', 'Other')], blank=True)
@@ -51,8 +88,12 @@ class UserProfile(AbstractUser):
     # ethnicity = models.CharField(max_length=100, blank=True)  # Open-ended or choices
     # religion = models.CharField(max_length=100, blank=True)  # Open-ended or choices
 
+    USERNAME_FIELD = "phone_number"
+    REQUIRED_FIELDS = []
+    objects = CustomUserManager()
+
     def __str__(self):
-        return self.username
+        return self.phone_number
 
 
 class UserPicture(models.Model):
