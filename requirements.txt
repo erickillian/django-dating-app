@@ -8,6 +8,7 @@ defusedxml==0.7.1
 dj-rest-auth==5.0.2
 Django==5.0.2
 django-allauth==0.57.2
+django-cors-headers==4.3.1
 django-filter==23.5
 django-ipware==6.0.4
 django-phonenumber-field==7.3.0

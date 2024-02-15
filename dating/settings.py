@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
     "graphene_django",
     "phonenumber_field",
     "dating.users",
@@ -45,6 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "dating.urls"
@@ -165,3 +167,7 @@ EMAIL_PORT = 1025
 EMAIL_USE_TLS = False
 
 HCAPTCHA_SECRET_KEY = "0xE51E731D5539Def523E3f2a7Ee7eC0c6570c7F42"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",  # your frontend URL
+]

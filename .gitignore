@@ -3,3 +3,5 @@ env/
 */migrations/*.py
 */migrations/*.pyc
 */migrations/__pycache__/
+
+node_modules
