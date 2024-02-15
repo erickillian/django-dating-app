@@ -5,3 +5,6 @@ env/
 */migrations/__pycache__/
 
 node_modules
+dating/users/migrations/*
+dist/bundle.js
+dist/bundle.js.LICENSE.txt
