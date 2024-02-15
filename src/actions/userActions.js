@@ -7,7 +7,7 @@ export const loginUser = (phone_number, password, captcha) => {
             const response = await api.post('/user/auth/login', { phone_number, password, captcha });
             dispatch({ type: 'LOGIN_SUCCESS', payload: response.data.token });
         } catch (error) {
-            dispatch({ type: 'LOGIN_ERROR', payload: error });
+            dispatch({ type: 'LOGIN_ERROR', payload: error.response.data });
         } finally {
             dispatch({ type: 'LOGIN_END' });
         }

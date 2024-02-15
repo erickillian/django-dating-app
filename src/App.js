@@ -4,10 +4,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { checkUserAuthentication } from './actions/userActions';
 import LoginForm from './components/LoginForm';
 import LogoutComponent from './components/LogoutComponent';
+import Navbar from './components/NavBar';
 import HomePage from './pages/HomePage';
-import UserPage from './pages/UserPage';
-
-// import NotFoundPage from './components/NotFoundPage';
+import ProfilePage from './pages/ProfilePage';
 
 const App = () => {
     const dispatch = useDispatch();
@@ -19,33 +18,29 @@ const App = () => {
 
     return (
         <Router>
-            <Routes>
-                {isAuthenticated ? (
-                    // Routes for authenticated users
-                    <>
-                        <Route path="/" element={<UserPage />} exact />
-                        <Route path="/dashboard" element={<div>Dashboard</div>} />
-                        {/* Add more routes for authenticated users here */}
-
-                        {/* Redirect from login/register to home if already authenticated */}
-                        <Route path="/logout" element={<LogoutComponent />} />
-                        <Route path="/login" element={<Navigate to="/" replace />} />
-
-                        {/* Fallback route for undefined paths */}
-                        <Route path="*" element={<div>Not Found</div>} />
-                    </>
-                ) : (
-                    // Routes for non-authenticated users
+            {isAuthenticated ? (
+                <Navbar>
+                    <Routes>
+                        <>
+                            <Route path="/discover" element={<div>Discover</div>} />
+                            <Route path="/likes" element={<div>Likes</div>} />
+                            <Route path="/chat" element={<div>Chat</div>} />
+                            <Route path="/profile" element={<ProfilePage />} exact />
+                            <Route path="/logout" element={<LogoutComponent />} />
+                            <Route path="*" element={<Navigate to="/profile" replace />} />
+                        </>
+                    </Routes>
+                </Navbar>
+            ) : (
+                <Routes>
                     <>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginForm />} />
                         <Route path="/register" element={<div>Register</div>} />
-                        {/* Add more routes for non-authenticated users here */}
-                        {/* Fallback route for undefined paths */}
                         <Route path="*" element={<Navigate to="/login" replace />} />
                     </>
-                )}
-            </Routes>
+                </Routes>
+            )}
         </Router>
     );
 };
