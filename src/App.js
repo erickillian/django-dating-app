@@ -24,7 +24,7 @@ const App = () => {
                         <>
                             <Route path="/discover" element={<div>Discover</div>} />
                             <Route path="/likes" element={<div>Likes</div>} />
-                            <Route path="/chat" element={<div>Chat</div>} />
+                            <Route path="/matches" element={<div>Matches</div>} />
                             <Route path="/profile" element={<ProfilePage />} exact />
                             <Route path="/logout" element={<LogoutComponent />} />
                             <Route path="*" element={<Navigate to="/profile" replace />} />

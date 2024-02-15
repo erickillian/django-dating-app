@@ -3,12 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserInfo, updateUserInfo } from '../actions/userActions'; // Adjust the import path as needed
 
 const formFields = {
-    full_name: { label: 'Full Name', type: 'text', options: [] },
+    full_name: { label: 'Name', type: 'text', options: [] },
     birth_date: { label: 'Birth Date', type: 'date', options: [] },
-    gender: { label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other'] },
-    sexual_orientation: { label: 'Sexual Orientation', type: 'select', options: ['Straight', 'Gay', 'Bisexual', 'Other'] },
+    gender: { label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
+    sexual_orientation: { label: 'Sexual Orientation', type: 'select', options: ['Straight', 'Gay', 'Bisexual', 'Other', 'Prefer not to say'] },
     location: { label: 'Location', type: 'text', options: [] },
     height: { label: 'Height (in cm)', type: 'number', options: [] },
+    phone_number: { label: 'Phone Number', type: 'text', options: [] }
 };
 
 const ProfilePage = () => {
@@ -19,10 +20,12 @@ const ProfilePage = () => {
 
     const [formState, setFormState] = useState({
         full_name: '',
+        birth_date: '',
         gender: '',
-        birthday: '',
+        sexual_orientation: '',
+        location: '',
         height: '',
-        sexual_orientation: ''
+        phone_number: ''
     });
 
     useEffect(() => {
@@ -34,9 +37,10 @@ const ProfilePage = () => {
     }, [dispatch, user]);
 
     const handleChange = (event) => {
+        const value = event.target.value === 'Prefer not to say' ? '' : event.target.value;
         setFormState({
             ...formState,
-            [event.target.name]: event.target.value
+            [event.target.name]: value
         });
     };
 
@@ -61,7 +65,7 @@ const ProfilePage = () => {
                                 {field.type === 'select' ? (
                                     <select name={key} value={formState[key] || ''} onChange={handleChange}>
                                         {field.options.map((option, index) => (
-                                            <option key={index} value={option}>{option}</option>
+                                            <option key={index} value={option === 'Prefer not to say' ? '' : option}>{option}</option>
                                         ))}
                                     </select>
                                 ) : (

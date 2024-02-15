@@ -32,16 +32,28 @@ class UserProfileAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {"fields": ("phone_number", "password")}),
         (
+            "Admin",
+            {
+                "fields": (
+                    "is_superuser",
+                    "is_active",
+                    "is_staff",
+                )
+            },
+        ),
+        (
             "Personal info",
             {
                 "fields": (
                     "full_name",
                     "gender",
                     "birth_date",
+                    "sexual_orientation",
+                    "location",
+                    "height",
                 )
             },
-        ),  # Update as per your model fields
-        # Remove or modify sections that are not applicable to your model
+        ),
     )
     search_fields = ("phone_number", "full_name")  # Update as per your model fields
     ordering = ("phone_number",)  # Update as per your model fields

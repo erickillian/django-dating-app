@@ -31,8 +31,6 @@ class UserProfile(AbstractUser):
     first_name = None
     last_name = None
     email = None
-    # is_staff = None
-    # password = None
 
     full_name = models.CharField(max_length=50, blank=True)
 
@@ -73,16 +71,92 @@ class UserProfile(AbstractUser):
     )
 
     # User preferences
-    # dating_intention = models.CharField(max_length=50, choices=[('Long Term', 'Long Term'), ('Casual', 'Casual'), ('Friendship', 'Friendship'), ('Other', 'Other')], blank=True)
-    # children = models.CharField(max_length=50, choices=[('Want Children', 'Want Children'), ('Do Not Want Children', 'Do Not Want Children'), ('Open to Discussion', 'Open to Discussion')], blank=True)
-    # family_plans = models.CharField(max_length=100, blank=True)  # Open-ended
-    # drug_use = models.CharField(max_length=50, choices=[('Never', 'Never'), ('Sometimes', 'Sometimes'), ('Regularly', 'Regularly')], blank=True)
-    # smoking = models.BooleanField(null=True)  # True for smoker, False for non-smoker
-    # marijuana_use = models.BooleanField(null=True)
-    # drinking = models.CharField(max_length=50, choices=[('Never', 'Never'), ('Socially', 'Socially'), ('Regularly', 'Regularly')], blank=True)
-    # political_views = models.CharField(max_length=100, blank=True)  # Open-ended or choices
-    # education_level = models.CharField(max_length=100, choices=[('High School', 'High School'), ('Bachelor', 'Bachelor'), ('Master', 'Master'), ('Doctorate', 'Doctorate'), ('Other', 'Other')], blank=True)
-    # sexual_preference = models.CharField(max_length=20, choices=[('Men', 'Men'), ('Women', 'Women'), ('Both', 'Both'), ('Other', 'Other')], blank=True)
+    # dating_intention = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Long Term", "Long Term"),
+    #         ("Casual", "Casual"),
+    #         ("Friendship", "Friendship"),
+    #         ("Other", "Other"),
+    #     ],
+    #     blank=True,
+    # )
+    # children = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Want Children", "Want Children"),
+    #         ("Do Not Want Children", "Do Not Want Children"),
+    #         ("Open to Discussion", "Open to Discussion"),
+    #     ],
+    #     blank=True,
+    # )
+    # drug_use = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Never", "Never"),
+    #         ("Sometimes", "Sometimes"),
+    #         ("Regularly", "Regularly"),
+    #     ],
+    #     blank=True,
+    # )
+    # smoking_use = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Never", "Never"),
+    #         ("Sometimes", "Sometimes"),
+    #         ("Regularly", "Regularly"),
+    #     ],
+    #     blank=True,
+    # )
+    # marijuana_use = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Never", "Never"),
+    #         ("Sometimes", "Sometimes"),
+    #         ("Regularly", "Regularly"),
+    #     ],
+    #     blank=True,
+    # )
+    # drinking = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Never", "Never"),
+    #         ("Sometimes", "Sometimes"),
+    #         ("Regularly", "Regularly"),
+    #     ],
+    #     blank=True,
+    # )
+    # political_views = models.CharField(
+    #     max_length=50,
+    #     choices=[
+    #         ("Liberal", "Liberal"),
+    #         ("Moderate", "Moderate"),
+    #         ("Conservative", "Conservative"),
+    #         ("Non-Political", "Non-Political"),
+    #     ],
+    #     blank=True,
+    # )  # Open-ended or choices
+    # education_level = models.CharField(
+    #     max_length=100,
+    #     choices=[
+    #         ("High School", "High School"),
+    #         ("Bachelor", "Bachelor"),
+    #         ("Master", "Master"),
+    #         ("Doctorate", "Doctorate"),
+    #         ("Other", "Other"),
+    #     ],
+    #     blank=True,
+    # )
+    # sexual_preference = models.CharField(
+    #     max_length=20,
+    #     choices=[
+    #         ("Men", "Men"),
+    #         ("Women", "Women"),
+    #         ("Both", "Both"),
+    #         ("Other", "Other"),
+    #     ],
+    #     blank=True,
+    # )
     # max_distance = models.IntegerField(null=True, blank=True)  # Maximum distance in km
     # age_range = models.CharField(max_length=50, blank=True)  # Example: "25-35"
     # ethnicity = models.CharField(max_length=100, blank=True)  # Open-ended or choices
@@ -93,7 +167,9 @@ class UserProfile(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.phone_number
+        if self.full_name:
+            return f"{self.full_name} - {self.phone_number}"
+        return f"{self.phone_number}"
 
 
 class UserPicture(models.Model):
