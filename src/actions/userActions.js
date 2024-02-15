@@ -39,3 +39,27 @@ export const checkUserAuthentication = () => {
         }
     };
 };
+
+export const fetchUserInfo = () => {
+    return async dispatch => {
+        dispatch({ type: 'FETCH_USER_PROFILE_START' });
+        try {
+            const response = await api.get('/user/profile');
+            dispatch({ type: 'FETCH_USER_PROFILE_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'FETCH_USER_PROFILE_ERROR', payload: error.response.data });
+        }
+    };
+};
+
+export const updateUserInfo = (updatedData) => {
+    return async dispatch => {
+        dispatch({ type: 'UPDATE_USER_PROFILE_START' });
+        try {
+            const response = await api.put('/user/profile', updatedData);
+            dispatch({ type: 'UPDATE_USER_PROFILE_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'UPDATE_USER_PROFILE_ERROR', payload: error.response.data });
+        }
+    };
+};

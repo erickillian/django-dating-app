@@ -4,7 +4,8 @@ import { loginUser } from '../actions/userActions';
 
 const LoginForm = () => {
     const dispatch = useDispatch();
-    const loading = useSelector(state => state.user.loading);
+    const loading = useSelector(state => state.user.auth_loading);
+    const errors = useSelector(state => state.user.auth_errors);
     const captchaRef = useRef(null);
 
     useEffect(() => {
