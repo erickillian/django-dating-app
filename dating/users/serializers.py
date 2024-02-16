@@ -118,7 +118,7 @@ class UserPictureSerializer(serializers.ModelSerializer):
 class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPicture
-        fields = ["id", "in_profile", "profile_order"]
+        fields = ["id", "in_profile", "profile_order", "image"]
         extra_kwargs = {"profile_order": {"required": True}}
 
 

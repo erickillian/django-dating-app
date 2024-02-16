@@ -33,4 +33,5 @@ urlpatterns = [
         "pictures/",
         UserPicturesView.as_view(),
     ),
+    path("pictures/<int:picture_id>/", UserPicturesView.as_view()),
 ]

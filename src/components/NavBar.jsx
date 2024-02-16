@@ -9,7 +9,8 @@ const Navbar = ({ children }) => {
                     <li><Link to="/discover">Discover</Link></li>
                     <li><Link to="/likes">Likes</Link></li>
                     <li><Link to="/matches">Matches</Link></li>
-                    <li><Link to="/profile">Profile</Link></li>
+                    <li><Link to="/profile">My Profile</Link></li>
+                    <li><Link to="/edit">Edit Profile</Link></li>
                     <li><Link to="/logout">Logout</Link></li>
                 </ul>
             </nav>

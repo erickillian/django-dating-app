@@ -103,3 +103,55 @@ export const uploadUserPicture = (imageFile) => {
         }
     };
 };
+
+export const deleteUserPicture = (picture_id) => {
+    console.log("Delete Picture " + picture_id);
+    return async (dispatch) => {
+        console.log("Dispatching delete")
+        dispatch({ type: 'DELETE_USER_PICTURE_START', payload: picture_id });
+        try {
+            const response = await api.delete(`/user/pictures/${picture_id}/`);
+            dispatch({ type: 'DELETE_USER_PICTURE_SUCCESS', payload: picture_id });
+        } catch (error) {
+            dispatch({
+                type: 'DELETE_USER_PICTURE_ERROR', payload: error.response.data,
+            });
+        } finally {
+            dispatch({ type: 'DELETE_USER_PICTURE_END', payload: picture_id });
+        }
+    };
+};
+
+export const updateUserPicturesOrder = (orderedPictureIds) => {
+    return async (dispatch) => {
+        dispatch({ type: 'UPDATE_USER_PICTURES_ORDER_START' });
+
+        try {
+            // Construct the payload for the API request
+            const payload = {
+                selected_pictures: orderedPictureIds
+            };
+
+            // Send the updated order to the backend
+            const response = await api.put('/user/select-pictures/', payload);
+
+            // Dispatch success action with the updated pictures
+            dispatch({
+                type: 'UPDATE_USER_PICTURES_ORDER_SUCCESS',
+                payload: response.data // Assuming the response contains the updated pictures
+            });
+
+            // Optionally, you might want to refresh the user profile or pictures
+            dispatch(fetchUserPictures());
+
+        } catch (error) {
+            dispatch({
+                type: 'UPDATE_USER_PICTURES_ORDER_ERROR',
+                payload: error.response ? error.response.data : 'Network error'
+            });
+        } finally {
+            // Dispatch end action whether success or error
+            dispatch({ type: 'UPDATE_USER_PICTURES_ORDER_END' });
+        }
+    };
+};

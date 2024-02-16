@@ -64,7 +64,6 @@ const userReducer = (state = initialState, action) => {
                 user_upload_progress: action.payload,
             };
         case 'UPLOAD_USER_PICTURE_SUCCESS':
-            // Add the new picture to user_pictures array
             return {
                 ...state,
                 user_pictures: [...state.user_pictures, action.payload],
@@ -81,6 +80,33 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 user_uploading: false,
+            };
+        case 'DELETE_USER_PICTURE_START':
+            return {
+                ...state,
+                user_pictures_error: null,
+                user_pictures: state.user_pictures.map(picture =>
+                    picture.id === action.payload ? { ...picture, loading: true } : picture
+                ),
+            };
+        case 'DELETE_USER_PICTURE_SUCCESS':
+            return {
+                ...state,
+                user_pictures: state.user_pictures.filter(picture => picture.id !== action.payload),
+            };
+        case 'DELETE_USER_PICTURE_ERROR':
+            return {
+                ...state,
+                user_pictures_error: {
+                    ...action.payload
+                },
+            };
+        case 'DELETE_USER_PICTURE_END':
+            return {
+                ...state,
+                user_pictures: state.user_pictures.map(picture =>
+                    picture.id === action.payload ? { ...picture, loading: false } : picture
+                ),
             };
         default:
             return state;

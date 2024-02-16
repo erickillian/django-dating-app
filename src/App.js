@@ -7,6 +7,8 @@ import LogoutComponent from './components/LogoutComponent';
 import Navbar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
+
 
 const App = () => {
     const dispatch = useDispatch();
@@ -26,6 +28,7 @@ const App = () => {
                             <Route path="/likes" element={<div>Likes</div>} />
                             <Route path="/matches" element={<div>Matches</div>} />
                             <Route path="/profile" element={<ProfilePage />} exact />
+                            <Route path="/edit" element={<EditProfilePage />} exact />
                             <Route path="/logout" element={<LogoutComponent />} />
                             <Route path="*" element={<Navigate to="/profile" replace />} />
                         </>

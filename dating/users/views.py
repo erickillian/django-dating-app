@@ -147,7 +147,7 @@ class UserPicturesView(APIView):
 
     def get(self, request):
         user_pictures = UserPicture.objects.filter(user_profile=request.user)
-        serializer = UserPictureSerializer(user_pictures, many=True)
+        serializer = ProfilePictureSerializer(user_pictures, many=True)
         return Response(serializer.data)
 
     def delete(self, request, picture_id):
