@@ -143,3 +143,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             in_profile=True, user_profile__id=obj.id
         ).order_by("profile_order")[:6]
         return UserPictureSerializer(pictures, many=True).data
+
+
+class SelectedPicturesSerializer(serializers.Serializer):
+    selected_pictures = serializers.ListField(child=serializers.IntegerField())

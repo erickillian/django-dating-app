@@ -9,6 +9,7 @@ from .serializers import (
     UserProfileSerializer,
     UserPictureSerializer,
     ProfilePictureSerializer,
+    SelectedPicturesSerializer,
 )
 from .models import UserProfile, UserPicture
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -16,6 +17,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from django.db import transaction
+from django.db.models import F
 
 
 @api_view(["POST"])
@@ -101,10 +103,16 @@ class PictureUploadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if request.user.num_pictures >= 10:
+            return Response(
+                {"detail": "Cannot upload more than 10 pictures."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = UserPictureSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user_profile=request.user)
-            request.user.num_pictures += 1
+            request.user.num_pictures = F("num_pictures") + 1
             request.user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -114,7 +122,15 @@ class ProfilePictureSelectionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
-        selected_pictures = request.data.get("selected_pictures", [])
+        selected_pictures_serializer = SelectedPicturesSerializer(data=request.data)
+        if selected_pictures_serializer.is_valid():
+            selected_pictures = selected_pictures_serializer.validated_data.get(
+                "selected_pictures", []
+            )
+        else:
+            return Response(
+                selected_pictures_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
         if len(selected_pictures) > 6:
             return Response(
@@ -123,13 +139,15 @@ class ProfilePictureSelectionView(APIView):
             )
 
         UserPicture.objects.filter(user_profile=request.user).update(in_profile=False)
-        for order, picture_id in enumerate(selected_pictures):
+        order = 0
+        for picture_id in selected_pictures:
             try:
                 picture = UserPicture.objects.get(
                     id=picture_id, user_profile=request.user
                 )
                 picture.in_profile = True
                 picture.profile_order = order
+                order += 1
                 picture.save()
             except UserPicture.DoesNotExist:
                 return Response(
@@ -146,7 +164,9 @@ class UserPicturesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user_pictures = UserPicture.objects.filter(user_profile=request.user)
+        user_pictures = UserPicture.objects.filter(user_profile=request.user).order_by(
+            "-in_profile", "profile_order"
+        )
         serializer = ProfilePictureSerializer(user_pictures, many=True)
         return Response(serializer.data)
 
@@ -154,7 +174,7 @@ class UserPicturesView(APIView):
         try:
             picture = UserPicture.objects.get(id=picture_id, user_profile=request.user)
             picture.delete()
-            request.user.num_pictures -= 1
+            request.user.num_pictures = F("num_pictures") - 1
             request.user.save()
             return Response(
                 {"detail": "Picture deleted."}, status=status.HTTP_204_NO_CONTENT

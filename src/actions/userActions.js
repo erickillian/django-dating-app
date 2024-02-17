@@ -142,7 +142,8 @@ export const updateUserPicturesOrder = (orderedPictureIds) => {
             });
 
             // Optionally, you might want to refresh the user profile or pictures
-            dispatch(fetchUserPictures());
+            dispatch(fetchUserInfo());
+            // dispatch(fetchUserPictures());
 
         } catch (error) {
             dispatch({

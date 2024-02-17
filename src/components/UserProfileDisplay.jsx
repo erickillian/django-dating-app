@@ -1,5 +1,5 @@
 import React from 'react';
-import UserPictureComponent from '../components/UserPictureComponent';
+import UserPicture from '../components/UserPicture';
 
 const UserProfileDisplay = ({ user }) => {
     // Function to format user info for display
@@ -14,6 +14,11 @@ const UserProfileDisplay = ({ user }) => {
     // Render user information
     return (
         <div>
+            <div className="user-pictures">
+                {user && user.pictures && user.pictures.map((picture, index) => (
+                    <UserPicture image={picture.image} key={index} />
+                ))}
+            </div>
             <h1>{user ? user.full_name : "User's Profile"}</h1>
             <div>
                 {user && Object.entries(user).map(([key, value]) => {
@@ -24,11 +29,6 @@ const UserProfileDisplay = ({ user }) => {
                     }
                     return null;
                 })}
-            </div>
-            <div className="user-pictures">
-                {user && user.pictures && user.pictures.map((picture, index) => (
-                    <UserPictureComponent key={index} imageUrl={picture.image} id={picture.id} />
-                ))}
             </div>
         </div>
     );

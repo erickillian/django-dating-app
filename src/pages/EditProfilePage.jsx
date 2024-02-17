@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserInfo, updateUserInfo, fetchUserPictures, updateUserPicturesOrder } from '../actions/userActions';
 import ImageUpload from '../components/ImageUpload';
-import UserPictureComponent from '../components/UserPictureComponent';
+import EditUserPictureComponent from '../components/EditUserPictureComponent';
 import UserProfileDisplay from '../components/UserProfileDisplay';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const formFields = {
     full_name: { label: 'Name', type: 'text', options: [] },
@@ -23,6 +22,7 @@ const ProfilePage = () => {
     const error = useSelector(state => state.user.error);
 
     const [userProfileState, setUserProfileState] = useState({});
+    const [selectedPictures, setSelectedPictures] = useState([]);
 
     useEffect(() => {
         if (!user) {
@@ -35,6 +35,11 @@ const ProfilePage = () => {
     useEffect(() => {
         if (!pictures) {
             dispatch(fetchUserPictures());
+        } else {
+            // Gets pictures that are in the users profile, and sorts them by picture order.  Then maps the picture id's to an array.
+            let selected_picture_ordering = pictures.filter(picture => picture.in_profile).sort((a, b) => a.picture_order - b.picture_order).map(picture => picture.id);
+            console.log(selected_picture_ordering);
+            setSelectedPictures(selected_picture_ordering);
         }
     }, [dispatch, pictures]);
 
@@ -46,14 +51,14 @@ const ProfilePage = () => {
         });
     };
 
-    const onDragEnd = (result) => {
-        if (!result.destination) return;
-
-        const reorderedPictures = Array.from(pictures);
-        const [reorderedItem] = reorderedPictures.splice(result.source.index, 1);
-        reorderedPictures.splice(result.destination.index, 0, reorderedItem);
-
-        // dispatch(updateUserPicturesOrder(reorderedPictures.map(p => p.id)));
+    const handlePictureClick = (pictureId) => {
+        setSelectedPictures(prevSelected => {
+            if (prevSelected.includes(pictureId)) {
+                return prevSelected.filter(id => id !== pictureId);
+            } else {
+                return [...prevSelected, pictureId];
+            }
+        });
     };
 
     const handleSubmit = (event) => {
@@ -61,36 +66,26 @@ const ProfilePage = () => {
         dispatch(updateUserInfo(userProfileState));
     };
 
+    const savePictureOrder = () => {
+        dispatch(updateUserPicturesOrder(selectedPictures));
+    };
+
     // Render user information or loading/error message
     return (
         <div>
             <h1>Edit Profile</h1>
             <div className="user-pictures">
-                {pictures && pictures.length > 0 && (
-                    <DragDropContext onDragEnd={onDragEnd}>
-                        <Droppable droppableId="droppable">
-                            {(provided) => (
-                                <div {...provided.droppableProps} ref={provided.innerRef}>
-                                    {pictures.map((picture, index) => (
-                                        <Draggable key={picture.id} draggableId={picture.id.toString()} index={index}>
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                >
-                                                    <UserPictureComponent key={index} imageUrl={"http://localhost" + picture.image} id={picture.id} />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-                    </DragDropContext>
-                )}
+                {pictures && pictures.length > 0 && pictures.map((picture, index) => (
+                    <div key={picture.id} onClick={() => handlePictureClick(picture.id)}>
+                        <EditUserPictureComponent
+                            picture={picture}
+                            selected={selectedPictures.includes(picture.id)}
+                            selected_order={selectedPictures.includes(picture.id) ? selectedPictures.indexOf(picture.id) + 1 : -1}
+                        />
+                    </div>
+                ))}
             </div>
+            <button onClick={savePictureOrder}>Save Picture Order</button>
             <ImageUpload />
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
