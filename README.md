@@ -19,3 +19,10 @@ To run api endpoint test cases run
 ```
 sudo docker compose exec web python3 manage.py test
 ```
+
+
+To add Dummy Users to the system run
+```
+sudo docker compose exec web python3 manage.py createdummyusers 10
+```
+This will create 10 dummy users
