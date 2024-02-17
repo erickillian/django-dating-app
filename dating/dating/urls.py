@@ -6,6 +6,8 @@ from .views import (
     MatchDetail,
     ConversationList,
     ConversationDetail,
+    NextProfileView,
+    RateView,
 )
 
 urlpatterns = [
@@ -19,4 +21,6 @@ urlpatterns = [
         ConversationDetail.as_view(),
         name="conversation-detail",
     ),
+    path("next/", NextProfileView.as_view(), name="next-profile"),
+    path("rate/", RateView.as_view(), name="rate-profile"),
 ]

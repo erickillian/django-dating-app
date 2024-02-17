@@ -113,6 +113,7 @@ class UserPictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPicture
         fields = ["id", "image"]
+        read_only_fields = ["id"]
 
 
 class ProfilePictureSerializer(serializers.ModelSerializer):
@@ -122,7 +123,7 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
         extra_kwargs = {"profile_order": {"required": True}}
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class MyUserProfileSerializer(serializers.ModelSerializer):
     pictures = serializers.SerializerMethodField()
 
     class Meta:
@@ -131,12 +132,37 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "location",
             "sexual_orientation",
             "gender",
+            "age",
+            "full_name",
+            "height",
+            "id",
+            "pictures",
             "birth_date",
+        ]
+        read_only_fields = ["id", "age"]
+
+    def get_pictures(self, obj):
+        pictures = UserPicture.objects.filter(
+            in_profile=True, user_profile__id=obj.id
+        ).order_by("profile_order")[:6]
+        return UserPictureSerializer(pictures, many=True).data
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    pictures = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            "sexual_orientation",
+            "gender",
+            "age",
             "full_name",
             "height",
             "id",
             "pictures",
         ]
+        read_only_fields = ["id", "age"]
 
     def get_pictures(self, obj):
         pictures = UserPicture.objects.filter(

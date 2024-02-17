@@ -16,13 +16,13 @@ const UserProfileDisplay = ({ user }) => {
         <div>
             <div className="user-pictures">
                 {user && user.pictures && user.pictures.map((picture, index) => (
-                    <UserPicture image={picture.image} key={index} />
+                    <UserPicture key={index} image={picture.image} />
                 ))}
             </div>
-            <h1>{user ? user.full_name : "User's Profile"}</h1>
+            <h1>{user.full_name}</h1>
             <div>
                 {user && Object.entries(user).map(([key, value]) => {
-                    if (['full_name', 'birth_date', 'gender', 'sexual_orientation', 'location', 'height'].includes(key)) {
+                    if (key !== "full_name" && key !== "pictures" && key !== "id") {
                         return (
                             <p key={key}><strong>{key.replace(/_/g, ' ')}:</strong> {displayUserInfo(key, value)}</p>
                         );
@@ -30,6 +30,7 @@ const UserProfileDisplay = ({ user }) => {
                     return null;
                 })}
             </div>
+
         </div>
     );
 };

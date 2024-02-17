@@ -1,7 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework import generics
 from .models import Rating, Match, Conversation
-from .serializers import RatingSerializer, MatchSerializer, ConversationSerializer
+from .serializers import (
+    RatingSerializer,
+    MatchSerializer,
+    ConversationSerializer,
+    RateSerializer,
+)
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from rest_framework.response import Response
@@ -76,13 +81,42 @@ class NextProfileView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
+
+        # Get the current user's sexual orientation and gender preferences
+        user_orientation = user.sexual_orientation
+        user_gender = user.gender
+
+        # Define potential matches based on user preferences
+        potential_matches_filter = Q()
+        if user_orientation == "Straight":
+            if user_gender == "Male":
+                potential_matches_filter = Q(gender="Female") & ~Q(
+                    sexual_orientation="Gay"
+                )
+            elif user_gender == "Female":
+                potential_matches_filter = Q(gender="Male") & ~Q(
+                    sexual_orientation="Gay"
+                )
+        elif user_orientation == "Gay":
+            potential_matches_filter = Q(gender=user_gender) & Q(
+                sexual_orientation="Gay"
+            )
+        elif user_orientation == "Bisexual":
+            # Include all genders and orientations except 'Other', if needed
+            potential_matches_filter = ~Q(gender="Other") | ~Q(
+                sexual_orientation="Other"
+            )
+
         # Get a list of users who have not been rated by the current user
         already_rated = Rating.objects.filter(rater=user).values_list(
             "rated", flat=True
         )
+
+        # Select the next profile considering sexual orientation and gender preferences
         next_profile = (
             UserProfile.objects.exclude(id__in=already_rated)
             .exclude(id=user.id)
+            .filter(potential_matches_filter)
             .first()
         )
 
@@ -95,25 +129,24 @@ class NextProfileView(APIView):
             )
 
 
-class SwipeView(APIView):
+class RateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        user = request.user
-        rated_user_id = request.data.get("rated_user_id")
-        action = request.data.get("action")  # 'like' or 'dislike'
+        serializer = RateSerializer(data=request.data)
+        if serializer.is_valid():
+            rated_user_id = serializer.validated_data.get("rated_user_id")
+            action = serializer.validated_data.get("action")
 
-        if action not in ["like", "dislike"]:
-            return Response(
-                {"message": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            rated_user = UserProfile.objects.get(id=rated_user_id)
-            Rating.objects.create(rater=user, rated=rated_user, rating=action)
-            return Response({"message": "Action recorded"})
-
-        except UserProfile.DoesNotExist:
-            return Response(
-                {"message": "User not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            try:
+                rated_user = UserProfile.objects.get(id=rated_user_id)
+                Rating.objects.create(
+                    rater=request.user, rated=rated_user, rating=action
+                )
+                return Response({"message": "Action recorded"})
+            except UserProfile.DoesNotExist:
+                return Response(
+                    {"message": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

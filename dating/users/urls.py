@@ -6,7 +6,7 @@ from .views import (
     login_user,
     register_user,
     logout_user,
-    UserProfileView,
+    MyUserProfileView,
     PictureUploadView,
     ProfilePictureSelectionView,
     UserPicturesView,
@@ -21,7 +21,7 @@ urlpatterns = [
     path("auth/logout", view=logout_user),
     path(
         "profile",
-        UserProfileView.as_view(),
+        MyUserProfileView.as_view(),
     ),
     path("upload-picture/", PictureUploadView.as_view(), name="upload-picture"),
     path(

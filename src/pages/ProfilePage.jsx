@@ -7,7 +7,7 @@ import UserProfileDisplay from '../components/UserProfileDisplay';
 
 const formFields = {
     full_name: { label: 'Name', type: 'text', options: [] },
-    birth_date: { label: 'Birth Date', type: 'date', options: [] },
+    age: { label: 'Age', type: 'text', options: [] },
     gender: { label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
     sexual_orientation: { label: 'Sexual Orientation', type: 'select', options: ['Straight', 'Gay', 'Bisexual', 'Other', 'Prefer not to say'] },
     location: { label: 'Location', type: 'text', options: [] },
@@ -29,7 +29,6 @@ const ProfilePage = () => {
     // Render user information or loading/error message
     return (
         <div>
-            <h1>Profile</h1>
             {user && <UserProfileDisplay user={user} />}
         </div>
     );

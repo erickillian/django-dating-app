@@ -18,3 +18,8 @@ class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         fields = "__all__"
+
+
+class RateSerializer(serializers.Serializer):
+    rated_user_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=["like", "dislike"])

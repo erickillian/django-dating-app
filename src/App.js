@@ -8,7 +8,7 @@ import Navbar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
-
+import DiscoverPage from './pages/DiscoverPage';
 
 const App = () => {
     const dispatch = useDispatch();
@@ -24,7 +24,7 @@ const App = () => {
                 <Navbar>
                     <Routes>
                         <>
-                            <Route path="/discover" element={<div>Discover</div>} />
+                            <Route path="/discover" element={<DiscoverPage />} />
                             <Route path="/likes" element={<div>Likes</div>} />
                             <Route path="/matches" element={<div>Matches</div>} />
                             <Route path="/profile" element={<ProfilePage />} exact />

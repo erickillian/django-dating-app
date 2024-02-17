@@ -6,6 +6,7 @@ from rest_framework import status
 from .serializers import (
     LoginSerializer,
     RegisterSerializer,
+    MyUserProfileSerializer,
     UserProfileSerializer,
     UserPictureSerializer,
     ProfilePictureSerializer,
@@ -72,12 +73,12 @@ def register_user(request):
         return Response(serializer.errors, status=400)
 
 
-class UserProfileView(APIView):
+class MyUserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            serializer = UserProfileSerializer(request.user)
+            serializer = MyUserProfileSerializer(request.user)
             return Response(serializer.data)
         except UserProfile.DoesNotExist:
             return Response(
@@ -86,7 +87,7 @@ class UserProfileView(APIView):
 
     def put(self, request):
         try:
-            serializer = UserProfileSerializer(
+            serializer = MyUserProfileSerializer(
                 request.user, data=request.data, partial=True
             )
             if serializer.is_valid():

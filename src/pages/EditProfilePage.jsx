@@ -38,7 +38,7 @@ const ProfilePage = () => {
         } else {
             // Gets pictures that are in the users profile, and sorts them by picture order.  Then maps the picture id's to an array.
             let selected_picture_ordering = pictures.filter(picture => picture.in_profile).sort((a, b) => a.picture_order - b.picture_order).map(picture => picture.id);
-            console.log(selected_picture_ordering);
+            // console.log(selected_picture_ordering);
             setSelectedPictures(selected_picture_ordering);
         }
     }, [dispatch, pictures]);
@@ -73,7 +73,6 @@ const ProfilePage = () => {
     // Render user information or loading/error message
     return (
         <div>
-            <h1>Edit Profile</h1>
             <div className="user-pictures">
                 {pictures && pictures.length > 0 && pictures.map((picture, index) => (
                     <div key={picture.id} onClick={() => handlePictureClick(picture.id)}>
