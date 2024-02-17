@@ -23,6 +23,6 @@ sudo docker compose exec web python3 manage.py test
 
 To add Dummy Users to the system run
 ```
-sudo docker compose exec web python3 manage.py createdummyusers 10
+sudo docker compose exec web python3 manage.py createdummyusers
 ```
-This will create 10 dummy users
+This will create 10 dummy users with 1 random profile picture each.
