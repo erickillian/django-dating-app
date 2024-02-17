@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Rating, Match, Conversation
+from .models import Rating, Match, Message
 from dating.users.serializers import UserProfileSerializer
 
 
@@ -25,12 +25,12 @@ class MatchSerializer(serializers.ModelSerializer):
         fields = ["other_user"]
 
 
-class ConversationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Conversation
-        fields = "__all__"
-
-
 class RateSerializer(serializers.Serializer):
     rated_user_id = serializers.IntegerField()
     action = serializers.ChoiceField(choices=["like", "dislike"])
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = "__all__"

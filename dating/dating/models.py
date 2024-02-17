@@ -47,23 +47,19 @@ class Match(models.Model):
         unique_together = ("user_one", "user_two")
 
 
-class Conversation(models.Model):
+class Message(models.Model):
     sender = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="sent_messages", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name="sender", on_delete=models.CASCADE
     )
     match = models.ForeignKey(Match, related_name="messages", on_delete=models.CASCADE)
-    message = models.TextField(
-        max_length=160
-    )  # Changed from CharField to TextField for potentially longer messages
-    time = models.DateTimeField(
-        auto_now_add=True
-    )  # Use auto_now_add for the creation time
+    message = models.CharField(max_length=160, blank=False)
+    time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "conversation"
-        verbose_name = "conversation"
-        verbose_name_plural = "conversations"
-        get_latest_by = "time"  # Ensures the latest message is easily retrievable
+        db_table = "message"
+        verbose_name = "message"
+        verbose_name_plural = "messages"
+        get_latest_by = ["time"]  # Ensures the latest message is easily retrievable
 
     def __str__(self):
-        return f"Message from {self.sender} in chat {self.chat.id}"
+        return f"Message from {self.sender} in match {self.match.id}"

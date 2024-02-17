@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework import generics
-from .models import Rating, Match, Conversation
+from .models import Rating, Match, Message
 from .serializers import (
     RatingSerializer,
     MatchSerializer,
-    ConversationSerializer,
+    MessageSerializer,
     RateSerializer,
 )
 from rest_framework.permissions import IsAuthenticated
@@ -55,25 +55,25 @@ class MatchDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ConversationList(generics.ListCreateAPIView):
-    serializer_class = ConversationSerializer
+    serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Conversation.objects.filter(
+        return Message.objects.filter(
             match__in=Match.objects.filter(Q(user_one=user) | Q(user_two=user))
         )
 
 
-class ConversationDetail(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
+# class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
+#     serializer_class = MessageSerializer
+#     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Conversation.objects.filter(
-            match__in=Match.objects.filter(Q(user_one=user) | Q(user_two=user))
-        )
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Message.objects.filter(
+#             match__in=Match.objects.filter(Q(user_one=user) | Q(user_two=user))
+#         )
 
 
 def get_potential_matches_filter(user):

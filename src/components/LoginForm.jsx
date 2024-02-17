@@ -25,7 +25,7 @@ const LoginForm = () => {
 
     return (
         <div>
-            <div>Login Form</div>
+            <div>Login</div>
             <form onSubmit={handleSubmit}>
                 <input name="phone_number" type="text" placeholder="Phone Number" />
                 <input name="password" type="password" placeholder="Password" />
