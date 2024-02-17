@@ -9,6 +9,9 @@ import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
+import LikesPage from './pages/LikesPage';
+import MatchesPage from './pages/MatchesPage';
+
 
 const App = () => {
     const dispatch = useDispatch();
@@ -25,8 +28,8 @@ const App = () => {
                     <Routes>
                         <>
                             <Route path="/discover" element={<DiscoverPage />} />
-                            <Route path="/likes" element={<div>Likes</div>} />
-                            <Route path="/matches" element={<div>Matches</div>} />
+                            <Route path="/likes" element={<LikesPage />} />
+                            <Route path="/matches" element={<MatchesPage />} />
                             <Route path="/profile" element={<ProfilePage />} exact />
                             <Route path="/edit" element={<EditProfilePage />} exact />
                             <Route path="/logout" element={<LogoutComponent />} />

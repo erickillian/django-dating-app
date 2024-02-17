@@ -42,3 +42,32 @@ export const rateUserProfile = (ratedUserId, action) => {
         }
     };
 };
+
+export const getLikes = () => {
+    return async dispatch => {
+        dispatch({ type: 'LIKES_START' });
+        try {
+            const response = await api.get('/dating/likes/');
+            dispatch({ type: 'LIKES_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'LIKES_ERROR', payload: error.response.data });
+        } finally {
+            dispatch({ type: 'LIKES_END' });
+        }
+    };
+};
+
+export const getMatches = () => {
+    return async dispatch => {
+        dispatch({ type: 'MATCHES_START' });
+        try {
+            const response = await api.get('/dating/matches/');
+            dispatch({ type: 'MATCHES_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'MATCHES_ERROR', payload: error.response.data });
+        } finally {
+            dispatch({ type: 'MATCHES_END' });
+        }
+    };
+};
+

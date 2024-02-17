@@ -76,49 +76,57 @@ class ConversationDetail(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+def get_potential_matches_filter(user):
+    # Get the current user's sexual orientation and gender preferences
+    user_orientation = user.sexual_orientation
+    user_gender = user.gender
+
+    # Define potential matches based on user preferences
+    potential_matches_filter = Q()
+    if user_orientation == "Straight":
+        if user_gender == "Male":
+            potential_matches_filter = Q(gender="Female") & ~Q(sexual_orientation="Gay")
+        elif user_gender == "Female":
+            potential_matches_filter = Q(gender="Male") & ~Q(sexual_orientation="Gay")
+    elif user_orientation == "Gay":
+        potential_matches_filter = Q(gender=user_gender) & Q(sexual_orientation="Gay")
+    elif user_orientation == "Bisexual":
+        # Include all genders and orientations except 'Other', if needed
+        potential_matches_filter = ~Q(gender="Other") | ~Q(sexual_orientation="Other")
+
+    # Exclude users who have already been rated by the current user
+    already_rated = Rating.objects.filter(rater=user).values_list("rated", flat=True)
+
+    # Retrieve and flatten the list of matched user IDs, excluding the current user's ID
+    already_matched = Match.objects.filter(
+        Q(user_one=user) | Q(user_two=user)
+    ).values_list("user_one_id", "user_two_id")
+
+    matched_user_ids = set(sum(already_matched, ())).difference([user.id])
+
+    potential_matches_filter &= ~Q(id__in=already_rated) & ~Q(id__in=matched_user_ids)
+
+    # Exclude the current user themselves
+    potential_matches_filter &= ~Q(id=user.id)
+
+    return potential_matches_filter
+
+
 class NextProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
 
-        # Get the current user's sexual orientation and gender preferences
-        user_orientation = user.sexual_orientation
-        user_gender = user.gender
-
-        # Define potential matches based on user preferences
-        potential_matches_filter = Q()
-        if user_orientation == "Straight":
-            if user_gender == "Male":
-                potential_matches_filter = Q(gender="Female") & ~Q(
-                    sexual_orientation="Gay"
-                )
-            elif user_gender == "Female":
-                potential_matches_filter = Q(gender="Male") & ~Q(
-                    sexual_orientation="Gay"
-                )
-        elif user_orientation == "Gay":
-            potential_matches_filter = Q(gender=user_gender) & Q(
-                sexual_orientation="Gay"
-            )
-        elif user_orientation == "Bisexual":
-            # Include all genders and orientations except 'Other', if needed
-            potential_matches_filter = ~Q(gender="Other") | ~Q(
-                sexual_orientation="Other"
-            )
-
         # Get a list of users who have not been rated by the current user
         already_rated = Rating.objects.filter(rater=user).values_list(
             "rated", flat=True
         )
 
+        potential_matches_filter = get_potential_matches_filter(request.user)
+
         # Select the next profile considering sexual orientation and gender preferences
-        next_profile = (
-            UserProfile.objects.exclude(id__in=already_rated)
-            .exclude(id=user.id)
-            .filter(potential_matches_filter)
-            .first()
-        )
+        next_profile = UserProfile.objects.filter(potential_matches_filter).first()
 
         if next_profile:
             return Response(UserProfileSerializer(next_profile).data)
@@ -140,10 +148,32 @@ class RateView(APIView):
 
             try:
                 rated_user = UserProfile.objects.get(id=rated_user_id)
+                # Create the rating
                 Rating.objects.create(
                     rater=request.user, rated=rated_user, rating=action
                 )
-                return Response({"message": "Action recorded"})
+
+                # Check for mutual 'like' to create a Match object
+                if action == "like":
+                    # Check if 'rater' liked 'rated'
+                    rater_liked_rated = Rating.objects.filter(
+                        rater=request.user, rated=rated_user, rating="like"
+                    )
+
+                    # Check if 'rated' liked 'rater'
+                    rated_liked_rater = Rating.objects.filter(
+                        rater=rated_user, rated=request.user, rating="like"
+                    )
+
+                    # If both are true, it's a mutual like
+                    if rater_liked_rated.exists() and rated_liked_rater.exists():
+                        rater_liked_rated.delete()
+                        rated_liked_rater.delete()
+                        # Create a Match object
+                        Match.objects.create(user_one=request.user, user_two=rated_user)
+                        return Response({"message": "Match found!"})
+
+                return Response({"message": "Successfully rated user"})
             except UserProfile.DoesNotExist:
                 return Response(
                     {"message": "User not found"}, status=status.HTTP_404_NOT_FOUND

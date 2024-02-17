@@ -26,7 +26,6 @@ const DiscoverPage = () => {
     }
 
     if (error) {
-        console.log(error);
         return <div>{error.message}</div>;
     }
 

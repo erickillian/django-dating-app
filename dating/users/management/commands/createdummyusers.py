@@ -86,6 +86,8 @@ class Command(BaseCommand):
                 )
                 fake_user.location = fake.city()
                 fake_user.height = fake.random_int(min=150, max=200)
+                fake_user.generated_profile = True
+                fake_user.num_pictures = num_pictures
                 fake_user.save()
 
                 self.stdout.write(self.style.SUCCESS(f"User created: {fake_user}"))

@@ -75,6 +75,7 @@ class UserProfile(AbstractUser):
     )
     num_pictures = models.IntegerField(default=0)
     num_active_pictures = models.IntegerField(default=0)
+    generated_profile = models.BooleanField(default=False)
 
     @property
     def age(self):
