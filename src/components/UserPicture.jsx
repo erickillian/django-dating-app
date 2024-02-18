@@ -2,7 +2,9 @@ import React from 'react';
 
 const UserPicture = ({ image }) => {
     return (
-        <img src={"http://localhost" + image} alt="Profile Image" width="300" height="300" />
+        <div style={{ lineHeight: 0, overflow: 'hidden' }}> {/* Ensures no extra space below the image */}
+            <img src={"http://localhost" + image} alt="User" style={{ maxWidth: '100%', }} /> {/* Maintains aspect ratio */}
+        </div>
     );
 };
 

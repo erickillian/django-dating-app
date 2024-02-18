@@ -1,0 +1,4 @@
+.user-picture-card .ant-card-body {
+    padding: 0 !important;
+    /* Remove padding only for this card */
+}

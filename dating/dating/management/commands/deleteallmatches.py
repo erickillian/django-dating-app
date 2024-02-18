@@ -13,6 +13,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         matches = Match.objects.all()
         matches.delete()
-        users = UserProfile.objects.all()
-        users.update(num_matches=0)
         self.stdout.write(self.style.SUCCESS("All matches have been deleted"))

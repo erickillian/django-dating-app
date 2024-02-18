@@ -13,6 +13,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ratings = Rating.objects.all()
         ratings.delete()
-        users = UserProfile.objects.all()
-        users.update(num_likes=0)
         self.stdout.write(self.style.SUCCESS("All ratings have been deleted"))

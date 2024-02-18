@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { checkUserAuthentication } from './actions/userActions';
 import LoginForm from './components/LoginForm';
 import LogoutComponent from './components/LogoutComponent';
-import Navbar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
@@ -12,6 +11,8 @@ import DiscoverPage from './pages/DiscoverPage';
 import LikesPage from './pages/LikesPage';
 import MatchesPage from './pages/MatchesPage';
 import MatchMessagesPage from './pages/MatchMessagesPage';
+import AuthenticatedLayout from './layouts/AuthenticatedLayout';
+import 'antd/dist/antd.js';
 
 const App = () => {
     const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const App = () => {
     return (
         <Router>
             {isAuthenticated ? (
-                <Navbar>
+                <AuthenticatedLayout>
                     <Routes>
                         <>
                             <Route path="/discover" element={<DiscoverPage />} />
@@ -73,7 +74,7 @@ const App = () => {
                             <Route path="*" element={<Navigate to="/profile" replace />} />
                         </>
                     </Routes>
-                </Navbar>
+                </AuthenticatedLayout>
             ) : (
                 <Routes>
                     <>

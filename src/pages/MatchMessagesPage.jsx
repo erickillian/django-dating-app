@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/api';
 
+import { List, Input, Button, Spin, Layout } from 'antd';
+import { SendOutlined } from '@ant-design/icons';
+
+const { Content } = Layout;
+const { TextArea } = Input;
+
 const MatchMessagesPage = () => {
     const { match_id } = useParams();
     const [messages, setMessages] = useState([]);
@@ -73,21 +79,41 @@ const MatchMessagesPage = () => {
     };
 
     return (
-        <div>
-            <h1>Match Messages {match_id}</h1>
-            <div>
-                {messages.map((msg, index) => (
-                    <p key={index}><strong>{msg.user}:</strong> {msg.message}</p>
-                ))}
-                {isTyping && <p>Someone is typing...</p>}
-            </div>
-            <textarea
-                value={newMessage}
-                onChange={handleTyping}
-                placeholder="Type a message..."
-            />
-            <button onClick={sendMessage}>Send</button>
-        </div>
+        <Layout>
+            <Content style={{ padding: '50px' }}>
+                <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
+                    <h1>Match Messages {match_id}</h1>
+                    <List
+                        itemLayout="horizontal"
+                        dataSource={messages}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={<strong>{item.user}:</strong>}
+                                    description={item.message}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                    {isTyping && <Spin />}
+                    <TextArea
+                        rows={4}
+                        value={newMessage}
+                        onChange={handleTyping}
+                        placeholder="Type a message..."
+                        style={{ marginBottom: '20px' }}
+                    />
+                    <Button
+                        type="primary"
+                        onClick={sendMessage}
+                        icon={<SendOutlined />}
+                        disabled={!newMessage.trim()}
+                    >
+                        Send
+                    </Button>
+                </div>
+            </Content>
+        </Layout>
     );
 };
 

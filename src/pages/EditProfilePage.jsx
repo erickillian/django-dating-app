@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserInfo, updateUserInfo, fetchUserPictures, updateUserPicturesOrder } from '../actions/userActions';
 import ImageUpload from '../components/ImageUpload';
 import EditUserPictureComponent from '../components/EditUserPictureComponent';
-import UserProfileDisplay from '../components/UserProfileDisplay';
+
+import { Form, Input, Select, Button, Spin, message, Row, Col, Card } from 'antd';
+import "./EditProfilePage.css";
 
 const formFields = {
     full_name: { label: 'Name', type: 'text', options: [] },
@@ -72,45 +74,55 @@ const ProfilePage = () => {
 
     // Render user information or loading/error message
     return (
-        <div>
-            <div className="user-pictures">
-                {pictures && pictures.length > 0 && pictures.map((picture, index) => (
-                    <div key={picture.id} onClick={() => handlePictureClick(picture.id)}>
-                        <EditUserPictureComponent
-                            picture={picture}
-                            selected={selectedPictures.includes(picture.id)}
-                            selected_order={selectedPictures.includes(picture.id) ? selectedPictures.indexOf(picture.id) + 1 : -1}
-                        />
-                    </div>
-                ))}
-            </div>
-            <button onClick={savePictureOrder}>Save Picture Order</button>
-            <ImageUpload />
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
-            {user && (
-                <form onSubmit={handleSubmit}>
-                    {Object.keys(formFields).map((key) => {
-                        const field = formFields[key];
-                        return (
-                            <label key={key}>
-                                {field.label}:
-                                {field.type === 'select' ? (
-                                    <select name={key} value={userProfileState[key] || ''} onChange={handleChange}>
-                                        {field.options.map((option, index) => (
-                                            <option key={index} value={option === 'Prefer not to say' ? '' : option}>{option}</option>
-                                        ))}
-                                    </select>
-                                ) : (
-                                    <input type={field.type} name={key} value={userProfileState[key] || ''} onChange={handleChange} />
-                                )}
-                            </label>
-                        );
-                    })}
-                    <button type="submit">Save Changes</button>
-                </form>
-            )}
-        </div>
+        <Row gutter={16}>
+            <Col span={12}>
+                <Card title="Your Pictures" bordered={false}>
+                    <Row gutter={[8, 8]} /* Adjust gutter for spacing */>
+                        {pictures && pictures.length > 0 && pictures.map(picture => (
+                            <Col key={picture.id} xs={24} sm={12} md={8} lg={6} /* Adjust column sizes as needed */>
+                                <div onClick={() => handlePictureClick(picture.id)}>
+                                    <EditUserPictureComponent
+                                        picture={picture}
+                                        selected={selectedPictures.includes(picture.id)}
+                                        selected_order={selectedPictures.includes(picture.id) ? selectedPictures.indexOf(picture.id) + 1 : -1}
+                                    />
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+
+                    <Button onClick={savePictureOrder} type="primary">Save Picture Order</Button>
+                    <ImageUpload />
+                </Card>
+            </Col>
+            <Col span={12}>
+                {loading && <Spin />}
+                {error && message.error(`Error: ${error}`)}
+                {user && (
+                    <Card title="Edit Profile" bordered={false}>
+                        <Form layout="vertical" onValuesChange={handleChange} onFinish={handleSubmit} initialValues={user}>
+                            {Object.keys(formFields).map(key => {
+                                const field = formFields[key];
+                                return (
+                                    <Form.Item key={key} label={field.label} name={key}>
+                                        {field.type === 'select' ? (
+                                            <Select>
+                                                {field.options.map(option => (
+                                                    <Option key={option} value={option === 'Prefer not to say' ? '' : option}>{option}</Option>
+                                                ))}
+                                            </Select>
+                                        ) : (
+                                            <Input type={field.type} />
+                                        )}
+                                    </Form.Item>
+                                );
+                            })}
+                            <Button type="primary" htmlType="submit">Save Changes</Button>
+                        </Form>
+                    </Card>
+                )}
+            </Col>
+        </Row>
     );
 };
 
