@@ -9,6 +9,7 @@ from dating.users.serializers import UserProfileSerializer
 from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from .serializers import SendMessageSerializer
 
 
 def send_notification(user_id, message):
@@ -76,3 +77,99 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         # Send the actual WebSocket message to the client
         print(event["message"], flush=True)
         await self.send(text_data=json.dumps(event["message"]))
+
+
+class MessageConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.match_id = self.scope["url_route"]["kwargs"]["match_id"]
+        self.match_group_name = f"match_{self.match_id}"
+
+        # Check if user is part of the match
+        if await self.is_user_in_match(self.scope["user"], self.match_id):
+            await self.channel_layer.group_add(self.match_group_name, self.channel_name)
+            await self.accept()
+        else:
+            await self.close()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.match_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        serializer = SendMessageSerializer(data=json.loads(text_data))
+
+        if serializer.is_valid():
+            message_type = serializer.validated_data.get("type")
+
+            if message_type == "message":
+                await self.handle_message(serializer.validated_data)
+            elif message_type == "typing":
+                await self.handle_typing(serializer.validated_data)
+        # else:
+        #     # Handle invalid data
+        #     print("Invalid data received:", serializer.errors)
+
+    async def handle_message(self, text_data_json):
+        message = text_data_json["message"]
+        if await self.is_user_in_match(self.scope["user"], self.match_id):
+            await self.save_message(self.scope["user"], self.match_id, message)
+            await self.channel_layer.group_send(
+                self.match_group_name,
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "user": self.scope["user"].id,
+                },
+            )
+
+    async def handle_typing(self, text_data_json):
+        is_typing = text_data_json["is_typing"]
+        if await self.is_user_in_match(self.scope["user"], self.match_id):
+            await self.channel_layer.group_send(
+                self.match_group_name,
+                {
+                    "type": "typing_notification",
+                    "user": self.scope["user"].username,
+                    "is_typing": is_typing,
+                },
+            )
+
+    async def typing_notification(self, event):
+        user = event["user"]
+        is_typing = event["is_typing"]
+
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "typing",
+                    "user": user,
+                    "is_typing": is_typing,
+                }
+            )
+        )
+
+    async def chat_message(self, event):
+        message = event["message"]
+        user = event["user"]
+
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "user": user,
+                    "time": datetime.now().isoformat(),
+                }
+            )
+        )
+
+    @database_sync_to_async
+    def save_message(self, user, match_id, message):
+        match = Match.objects.get(id=match_id)
+        Message.objects.create(sender=user, match=match, message=message)
+
+    @database_sync_to_async
+    def is_user_in_match(self, user, match_id):
+        match = Match.objects.filter(id=match_id)
+        return (
+            match.filter(user_one=user).exists() or match.filter(user_two=user).exists()
+        )

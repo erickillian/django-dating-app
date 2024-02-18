@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Rating, Match, Message
 from dating.users.serializers import UserProfileSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class RatingSerializer(serializers.ModelSerializer):
@@ -31,6 +34,14 @@ class RateSerializer(serializers.Serializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    user = serializers.IntegerField(source="sender.id")
+
     class Meta:
         model = Message
-        fields = "__all__"
+        fields = ["time", "user", "message"]
+
+
+class SendMessageSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=["message", "typing"])
+    message = serializers.CharField(allow_blank=True, required=False)
+    is_typing = serializers.BooleanField(default=False, required=False)
