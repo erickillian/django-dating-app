@@ -122,7 +122,7 @@ class NextProfileView(APIView):
 
 
 def handle_rate(action, rater, rated):
-    match = False
+    matched = False
 
     # Check for mutual 'like' to create a Match object
     if action == "like":
@@ -134,16 +134,16 @@ def handle_rate(action, rater, rated):
         # If both are true, it's a mutual like
         if rated_liked_rater.exists():
             rated_liked_rater.delete()
-            match = True
+            matched = True
 
-    if match:
-        match = Match.objects.create(user_one=rater, user_two=rated)
+    if matched:
+        m = Match.objects.create(user_one=rater, user_two=rated)
         send_notification(
             rated.id,
             {
                 "type": "new_match",
                 "user": UserProfileSerializer(rater).data,
-                "match_id": match.id,
+                "match_id": m.id,
             },
         )
         send_notification(
@@ -164,7 +164,7 @@ def handle_rate(action, rater, rated):
                 },
             )
 
-    return match
+    return matched
 
 
 class RateView(APIView):

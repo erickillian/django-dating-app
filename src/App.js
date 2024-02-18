@@ -16,6 +16,7 @@ import MatchMessagesPage from './pages/MatchMessagesPage';
 const App = () => {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => (state.user.token !== null));
+    const userToken = useSelector(state => state.user.token);
     const [webSocket, setWebSocket] = useState(null);
 
     useEffect(() => {
@@ -26,7 +27,8 @@ const App = () => {
         // Function to initialize WebSocket connection to handle real-time messages such as matches
         const connectWebSocket = () => {
             // Replace with your WebSocket connection URL
-            const ws = new WebSocket('ws://localhost/ws/dating/');
+            document.cookie = 'Authorization=' + userToken + '; path=/';
+            const ws = new WebSocket("ws://localhost/ws/dating/");
 
             ws.onopen = () => {
                 console.log('WebSocket Connected');

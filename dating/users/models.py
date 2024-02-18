@@ -79,7 +79,7 @@ class UserProfile(AbstractUser):
 
     @property
     def num_likes(self):
-        return self.ratings_received.count()
+        return self.ratings_received.filter(rating="like").count()
 
     @property
     def num_matches(self):

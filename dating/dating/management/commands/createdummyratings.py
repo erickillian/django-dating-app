@@ -45,13 +45,13 @@ class Command(BaseCommand):
                     matches_created += 1
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f"User {rater.id} and user {rated.id} have matched"
+                            f"User {rater} and user {rated} have matched"
                         )
                     )
 
                 ratings_created += 1
                 self.stdout.write(
-                    self.style.SUCCESS(f"User {rater.id} {action}d user {rated.id}")
+                    self.style.SUCCESS(f"User {rater} {action}d user {rated}")
                 )
 
             else:

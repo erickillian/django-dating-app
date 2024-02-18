@@ -15,6 +15,7 @@ def send_notification(user_id, message):
     """
     Sends a match notification to the specified user.
     """
+
     channel_layer = get_channel_layer()
 
     group_name = f"{user_id}"
@@ -32,6 +33,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         # Check if user is authenticated
         if self.scope["user"].is_anonymous:
             # Reject the connection
+            print("Rejected connection", flush=True)
             await self.close()
         else:
             user_id = str(self.scope["user"].id)
@@ -52,8 +54,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.accept()
 
     async def disconnect(self, close_code):
-        # Remove the user from their group
+        # Check if the user_group_name attribute is set
         if hasattr(self, "user_group_name"):
+            user_id = self.user_group_name
+
+            # Decrement the connection count
+            if self.active_connections.get(user_id):
+                self.active_connections[user_id] -= 1
+
+                # If no more connections, remove user from active connections
+                if self.active_connections[user_id] == 0:
+                    del self.active_connections[user_id]
+
+            # Remove the user from their group
             await self.channel_layer.group_discard(
                 self.user_group_name, self.channel_name
             )

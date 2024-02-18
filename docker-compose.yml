@@ -22,7 +22,7 @@ services:
     restart: always
   web:
     build: .
-    command: daphne -b 0.0.0.0 -p 80 dating.asgi:application
+    command: python manage.py runserver 0.0.0.0:80 #daphne -b 0.0.0.0 -p 80 dating.asgi:application
     volumes:
       - .:/app
     ports:
