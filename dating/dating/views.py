@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..users.serializers import UserProfileSerializer
 from ..users.models import UserProfile
+from .consumers import send_notification
 
 
 # Updated views for Rating
@@ -54,26 +55,16 @@ class MatchDetail(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
-class ConversationList(generics.ListCreateAPIView):
+class MatchMessageList(generics.ListAPIView):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        match_id = self.kwargs.get("match_id")
         user = self.request.user
         return Message.objects.filter(
-            match__in=Match.objects.filter(Q(user_one=user) | Q(user_two=user))
+            Q(match_id=match_id) & (Q(match__user_one=user) | Q(match__user_two=user))
         )
-
-
-# class MessageDetail(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = MessageSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         return Message.objects.filter(
-#             match__in=Match.objects.filter(Q(user_one=user) | Q(user_two=user))
-#         )
 
 
 def get_potential_matches_filter(user):
@@ -116,13 +107,6 @@ class NextProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = request.user
-
-        # Get a list of users who have not been rated by the current user
-        already_rated = Rating.objects.filter(rater=user).values_list(
-            "rated", flat=True
-        )
-
         potential_matches_filter = get_potential_matches_filter(request.user)
 
         # Select the next profile considering sexual orientation and gender preferences
@@ -137,6 +121,52 @@ class NextProfileView(APIView):
             )
 
 
+def handle_rate(action, rater, rated):
+    match = False
+
+    # Check for mutual 'like' to create a Match object
+    if action == "like":
+        # Check if 'rated' liked 'rater'
+        rated_liked_rater = Rating.objects.filter(
+            rater=rated, rated=rater, rating="like"
+        )
+
+        # If both are true, it's a mutual like
+        if rated_liked_rater.exists():
+            rated_liked_rater.delete()
+            match = True
+
+    if match:
+        match = Match.objects.create(user_one=rater, user_two=rated)
+        send_notification(
+            rated.id,
+            {
+                "type": "new_match",
+                "user": UserProfileSerializer(rater).data,
+                "match_id": match.id,
+            },
+        )
+        send_notification(
+            rater.id,
+            {
+                "type": "new_match",
+                "user": UserProfileSerializer(rated).data,
+            },
+        )
+    else:
+        Rating.objects.create(rater=rater, rated=rated, rating=action)
+        if action == "like":
+            send_notification(
+                rated.id,
+                {
+                    "type": "like",
+                    "user": UserProfileSerializer(rater).data,
+                },
+            )
+
+    return match
+
+
 class RateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -148,31 +178,7 @@ class RateView(APIView):
 
             try:
                 rated_user = UserProfile.objects.get(id=rated_user_id)
-                # Create the rating
-                Rating.objects.create(
-                    rater=request.user, rated=rated_user, rating=action
-                )
-
-                # Check for mutual 'like' to create a Match object
-                if action == "like":
-                    # Check if 'rater' liked 'rated'
-                    rater_liked_rated = Rating.objects.filter(
-                        rater=request.user, rated=rated_user, rating="like"
-                    )
-
-                    # Check if 'rated' liked 'rater'
-                    rated_liked_rater = Rating.objects.filter(
-                        rater=rated_user, rated=request.user, rating="like"
-                    )
-
-                    # If both are true, it's a mutual like
-                    if rater_liked_rated.exists() and rated_liked_rater.exists():
-                        rater_liked_rated.delete()
-                        rated_liked_rater.delete()
-                        # Create a Match object
-                        Match.objects.create(user_one=request.user, user_two=rated_user)
-                        return Response({"message": "Match found!"})
-
+                handle_rate(action, request.user, rated_user)
                 return Response({"message": "Successfully rated user"})
             except UserProfile.DoesNotExist:
                 return Response(

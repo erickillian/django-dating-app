@@ -7,7 +7,6 @@ from .serializers import (
     LoginSerializer,
     RegisterSerializer,
     MyUserProfileSerializer,
-    UserProfileSerializer,
     UserPictureSerializer,
     ProfilePictureSerializer,
     SelectedPicturesSerializer,

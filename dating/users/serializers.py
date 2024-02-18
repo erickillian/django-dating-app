@@ -138,6 +138,8 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
             "id",
             "pictures",
             "birth_date",
+            "num_likes",
+            "num_matches",
         ]
         read_only_fields = ["id", "age"]
 

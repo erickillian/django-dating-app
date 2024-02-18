@@ -78,6 +78,14 @@ class UserProfile(AbstractUser):
     generated_profile = models.BooleanField(default=False)
 
     @property
+    def num_likes(self):
+        return self.ratings_received.count()
+
+    @property
+    def num_matches(self):
+        return self.matches_user_one.count() + self.matches_user_two.count()
+
+    @property
     def age(self):
         if self.birth_date:
             today = date.today()

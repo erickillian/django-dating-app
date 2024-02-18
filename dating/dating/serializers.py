@@ -22,7 +22,7 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = ["other_user"]
+        fields = ["other_user", "id"]
 
 
 class RateSerializer(serializers.Serializer):

@@ -6,7 +6,8 @@ module.exports = {
     entry: './src/index.js', // main file of your app
     output: {
         path: path.resolve(__dirname, 'dist'), // output directory
-        filename: 'bundle.js' // name of the compiled bundle
+        filename: 'bundle.js', // name of the compiled bundle
+        publicPath: '/',
     },
     module: {
         rules: [

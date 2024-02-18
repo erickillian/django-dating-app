@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "graphene_django",
+    "channels",
     "phonenumber_field",
     "dating.users",
     "dating.dating",
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "dating.urls"
@@ -68,7 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "dating.wsgi.application"
-
+ASGI_APPLICATION = "dating.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -174,6 +176,8 @@ CORS_ALLOWED_ORIGINS = [
 
 APPEND_SLASH = False
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Static files include admin css and js, etc.
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -181,3 +185,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Media files include user uploaded files like profile pictures
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Channel layer definitions
+# Configure this with your Redis server details
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                (
+                    os.environ.get("REDIS_HOST", "127.0.0.1"),
+                    int(os.environ.get("REDIS_PORT", 6379)),
+                )
+            ],
+        },
+    },
+}
