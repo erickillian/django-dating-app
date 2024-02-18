@@ -23,7 +23,9 @@ class LikeList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Rating.objects.filter(rated=user, rating="like")
+        return Rating.objects.filter(rated=user, rating="like").exclude(
+            rater=user, rating="dislike"
+        )
 
 
 class LikeDetail(generics.RetrieveUpdateDestroyAPIView):

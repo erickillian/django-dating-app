@@ -5,7 +5,7 @@ export const loginUser = (phone_number, password, captcha) => {
         dispatch({ type: 'LOGIN_START' });
         try {
             const response = await api.post('/user/auth/login', { phone_number, password, captcha });
-            dispatch({ type: 'LOGIN_SUCCESS', payload: response.data.token });
+            dispatch({ type: 'LOGIN_SUCCESS', payload: response.data });
         } catch (error) {
             dispatch({ type: 'LOGIN_ERROR', payload: error.response.data });
         } finally {
@@ -19,7 +19,6 @@ export const logoutUser = () => {
         dispatch({ type: 'LOGOUT_START' });
         try {
             await api.post('/user/auth/logout');
-            localStorage.removeItem('token');
             dispatch({ type: 'LOGOUT_SUCCESS' });
         } catch (error) {
             dispatch({ type: 'LOGOUT_ERROR', payload: error });

@@ -7,6 +7,7 @@ const MatchComponent = ({ match }) => {
             <h3>{match.other_user.full_name}</h3>
             <img src={"http://localhost" + match.other_user.pictures[0].image} alt="Error loading image" width="80" height="80" />
             <Link to={`/matches/${match.id}`}>Messages</Link>
+            <div>Last Message: {match.last_message ? match.last_message.message : ""}</div>
         </div>
     );
 };

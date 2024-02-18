@@ -165,6 +165,8 @@ class MessageConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, user, match_id, message):
         match = Match.objects.get(id=match_id)
+        match.last_message_time = datetime.now()
+        match.save()
         Message.objects.create(sender=user, match=match, message=message)
 
     @database_sync_to_async

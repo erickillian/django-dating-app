@@ -16,6 +16,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
 class MatchSerializer(serializers.ModelSerializer):
     other_user = serializers.SerializerMethodField()
+    last_message = serializers.SerializerMethodField()
 
     def get_other_user(self, obj):
         user = self.context["request"].user
@@ -23,9 +24,15 @@ class MatchSerializer(serializers.ModelSerializer):
             return UserProfileSerializer(obj.user_two).data
         return UserProfileSerializer(obj.user_one).data
 
+    def get_last_message(self, obj):
+        last_message = obj.messages.order_by("-time").first()
+        if last_message:
+            return MessageSerializer(last_message).data
+        return None
+
     class Meta:
         model = Match
-        fields = ["other_user", "id"]
+        fields = ["other_user", "last_message", "id"]
 
 
 class RateSerializer(serializers.Serializer):

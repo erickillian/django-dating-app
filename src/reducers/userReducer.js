@@ -20,18 +20,19 @@ const userReducer = (state = initialState, action) => {
         case 'LOGIN_START':
             return { ...state, auth_loading: true };
         case 'LOGIN_SUCCESS':
-            localStorage.setItem('token', action.payload); // Save to local storage
-            return { ...state, token: action.payload, auth_loading: null };
+            localStorage.setItem('token', action.payload.token); // Save to local storage
+            return { ...state, token: action.payload.token, user_profile: action.payload.user_profile, auth_loading: null };
         case 'LOGIN_ERROR':
-            return { ...state, auth_loading: action.payload, token: null };
+            return { ...state, auth_errors: action.payload, token: null };
         case 'LOGIN_END':
             return { ...state, auth_loading: false };
         case 'LOGOUT_START':
             return { ...state, auth_loading: true };
         case 'LOGOUT_SUCCESS':
+            localStorage.removeItem('token');
             return { ...initialState, token: null };
         case 'LOGOUT_ERROR':
-            return { ...state, auth_loading: action.payload };
+            return { ...state, auth_errors: action.payload };
         case 'LOGOUT_END':
             return { ...state, auth_loading: false };
         case 'FETCH_USER_PROFILE_START':
@@ -39,7 +40,7 @@ const userReducer = (state = initialState, action) => {
         case 'FETCH_USER_PROFILE_SUCCESS':
             return { ...state, user_profile: action.payload, user_profile_loading: false };
         case 'FETCH_USER_PROFILE_ERROR':
-            return { ...state, error: action.payload, user_profile_loading: false };
+            return { ...state, user_profile_error: action.payload, user_profile_loading: false };
         case 'UPDATE_USER_PROFILE_START':
             return { ...state, user_profile_loading: true, user_profile_error: null };
         case 'UPDATE_USER_PROFILE_SUCCESS':
