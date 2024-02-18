@@ -1,23 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
-import './AuthenticatedLayout.css'; // Make sure to include your custom styles if needed
+import './AuthenticatedLayout.css';
+import { useLocation } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 
 const AuthenticatedLayout = ({ children }) => {
+    const location = useLocation();
+
+    // Define menu items
+    const menuItems = [
+        { label: <Link to="/discover">Discover</Link>, key: 'discover' },
+        { label: <Link to="/likes">Likes</Link>, key: 'likes' },
+        { label: <Link to="/matches">Matches</Link>, key: 'matches' },
+        { label: <Link to="/profile">My Profile</Link>, key: 'profile' },
+        { label: <Link to="/edit">Edit Profile</Link>, key: 'edit' },
+        { label: <Link to="/logout">Logout</Link>, key: 'logout' },
+    ];
+
     return (
         <Layout className="layout">
             <Header>
                 <div className="logo" /> {/* Add your logo or branding here */}
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                    <Menu.Item key="1"><Link to="/discover">Discover</Link></Menu.Item>
-                    <Menu.Item key="2"><Link to="/likes">Likes</Link></Menu.Item>
-                    <Menu.Item key="3"><Link to="/matches">Matches</Link></Menu.Item>
-                    <Menu.Item key="4"><Link to="/profile">My Profile</Link></Menu.Item>
-                    <Menu.Item key="5"><Link to="/edit">Edit Profile</Link></Menu.Item>
-                    <Menu.Item key="6"><Link to="/logout">Logout</Link></Menu.Item>
-                </Menu>
+                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[location.pathname.split("/")[1]]} items={menuItems} />
             </Header>
             <Content>
                 <div className="site-layout-content">

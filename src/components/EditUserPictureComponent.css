@@ -1,0 +1,18 @@
+.display-button {
+    position: absolute;
+}
+
+.number-badge {
+    top: 8px;
+    left: 8px;
+    /* ...other styles you had before for the badge... */
+}
+
+.delete-button {
+    top: 8px;
+    right: 8px;
+}
+
+.selected-border {
+    border: 4px solid;
+}

@@ -4,7 +4,7 @@ import { fetchUserInfo, updateUserInfo, fetchUserPictures, updateUserPicturesOrd
 import ImageUpload from '../components/ImageUpload';
 import EditUserPictureComponent from '../components/EditUserPictureComponent';
 
-import { Form, Input, Select, Button, Spin, message, Row, Col, Card } from 'antd';
+import { Form, Input, Select, Button, Spin, message, Row, Col, Card, Flex } from 'antd';
 import "./EditProfilePage.css";
 
 const formFields = {
@@ -74,7 +74,7 @@ const ProfilePage = () => {
 
     // Render user information or loading/error message
     return (
-        <Row gutter={16}>
+        <Flex>
             <Col span={12}>
                 <Card title="Your Pictures" bordered={false}>
                     <Row gutter={[8, 8]} /* Adjust gutter for spacing */>
@@ -90,9 +90,12 @@ const ProfilePage = () => {
                             </Col>
                         ))}
                     </Row>
-
-                    <Button onClick={savePictureOrder} type="primary">Save Picture Order</Button>
-                    <ImageUpload />
+                    <Row>
+                        <Button onClick={savePictureOrder} type="primary">Save Picture Order</Button>
+                    </Row>
+                    <Row>
+                        <ImageUpload />
+                    </Row>
                 </Card>
             </Col>
             <Col span={12}>
@@ -122,7 +125,7 @@ const ProfilePage = () => {
                     </Card>
                 )}
             </Col>
-        </Row>
+        </Flex>
     );
 };
 

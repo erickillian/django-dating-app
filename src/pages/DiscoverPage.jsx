@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNextUserProfile, rateUserProfile } from '../actions/datingActions';
 import UserProfileDisplay from '../components/UserProfileDisplay';
+import { Button, Spin, Card, Alert } from 'antd';
+import { DislikeOutlined, LikeOutlined } from '@ant-design/icons';
 
 const DiscoverPage = () => {
     const dispatch = useDispatch();
@@ -22,22 +24,33 @@ const DiscoverPage = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Spin size="large" />;
     }
 
     if (error) {
-        return <div>{error.message}</div>;
+        return <Alert message={error.message} type="error" />;
     }
 
     return (
         <div>
             {user && <UserProfileDisplay user={user} />}
-            <button onClick={() => handleRate("dislike")}>
-                No
-            </button>
-            <button onClick={() => handleRate("like")}>
-                Yes
-            </button>
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <Button
+                    icon={<DislikeOutlined />}
+                    onClick={() => handleRate("dislike")}
+                    type="primary"
+                    style={{ marginRight: 8 }}
+                >
+                    No
+                </Button>
+                <Button
+                    icon={<LikeOutlined />}
+                    onClick={() => handleRate("like")}
+                    type="primary"
+                >
+                    Yes
+                </Button>
+            </div>
         </div>
     );
 };
