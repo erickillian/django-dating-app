@@ -46,12 +46,26 @@ const ProfilePage = () => {
     }, [dispatch, pictures]);
 
     const handleChange = (event) => {
-        const value = event.target.value === 'Prefer not to say' ? '' : event.target.value;
-        setUserProfileState({
-            ...userProfileState,
-            [event.target.name]: value
-        });
+        // Check if event has 'target' property (standard event object)
+        if (event.target) {
+            const value = event.target.value === 'Prefer not to say' ? '' : event.target.value;
+            setUserProfileState({
+                ...userProfileState,
+                [event.target.name]: value
+            });
+        }
+        // Handle custom object (like { full_name: "Eric Killian3" })
+        else if (typeof event === 'object' && event !== null) {
+            // Assuming the object's key is the field's name and its value is the field's value
+            const key = Object.keys(event)[0];
+            const value = event[key] === 'Prefer not to say' ? '' : event[key];
+            setUserProfileState({
+                ...userProfileState,
+                [key]: value
+            });
+        }
     };
+
 
     const handlePictureClick = (pictureId) => {
         setSelectedPictures(prevSelected => {
@@ -64,7 +78,7 @@ const ProfilePage = () => {
     };
 
     const handleSubmit = (event) => {
-        event.preventDefault();
+        // event.preventDefault();
         dispatch(updateUserInfo(userProfileState));
     };
 
