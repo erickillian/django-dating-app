@@ -13,7 +13,7 @@
 
 Simple Dating App made with Django Rest Framework, MySQL, Redis, React, Redux, and Ant Design.
 
-I made this app over the course of the last week to improve my skills working with Django.
+I made this app in one week to improve my skills working with Django.
 
 ![Edit Profile](assets/edit_profile.png)
 
