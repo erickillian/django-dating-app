@@ -83,13 +83,13 @@ This will create 100 dummy ratings for the dummy users you added
 - [ ] Limit number of user picture uploads for profile
 - [ ] Add drag and drop to re-order pictures on frontend
 - [ ] Add pagination to list views and modify frontend to handle changes
-- [ ] Create machine learning driven model for user recommendation engine.
+- [ ] Create machine learning driven model for user recommendation engine
 - [ ] Add ability to ban / suspend users
 - [ ] Implement Spam / Bot / NSFW Detection Algorithms to avoid spam and unwanted content
 - [ ] Add report functionality to allow users to report fradulent activity on the site
 - [ ] Add support for Twilio API for phone authentication
 - [ ] Configure setup for production server
-- [ ] Configure support for cloud services such as AWS, Digital Ocean, Heroku, Google Cloud etc.
+- [ ] Configure support for cloud services such as AWS, Digital Ocean, Heroku, Google Cloud etc
 
 
 ## Contribute
