@@ -1,34 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Avatar, Button } from 'antd';
+import { Card, Avatar, Typography } from 'antd';
 import { MessageOutlined } from '@ant-design/icons';
 
-const { Meta } = Card;
+const { Text } = Typography;
 
 const MatchComponent = ({ match }) => {
-    const imageUrl = match.other_user.pictures[0].image; // Use optional chaining for safety
+    const imageUrl = match.other_user.pictures[0].image; // Ensure this path is correct
 
     return (
-        <Card
-            style={{ width: 300, marginTop: 16 }}
-            actions={[
-                <Link to={`/matches/${match.id}`}>
-                    <Button type="primary" icon={<MessageOutlined />} size="large">
-                        Messages
-                    </Button>
-                </Link>
-            ]}
-        >
-            <Meta
-                avatar={<Avatar src={`http://localhost${imageUrl}`} />}
-                title={match.other_user.full_name}
-                description={
+        <Link to={`/matches/${match.id}`} style={{ width: '100%' }}>
+            <Card
+                hoverable
+                style={{ width: 300, marginTop: 16 }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar size={64} src={`http://localhost${imageUrl}`} style={{ marginRight: 16 }} />
                     <div>
-                        Last Message: {match.last_message ? match.last_message.message : "No messages yet"}
+                        <Text strong>{match.other_user.full_name}</Text>
+                        <br />
+                        <Text type="secondary">
+                            {match.last_message ? match.last_message.message : "No messages yet"}
+                        </Text>
                     </div>
-                }
-            />
-        </Card>
+                </div>
+            </Card>
+        </Link>
     );
 };
 

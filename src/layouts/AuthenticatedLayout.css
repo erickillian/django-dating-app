@@ -22,3 +22,19 @@ body {
     min-height: 280px;
     /* Adjust as needed */
 }
+
+.layout .ant-layout-header {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout .ant-layout-header .logo {
+    margin-right: auto;
+    /* Adjusts logo position */
+}
+
+.layout .ant-layout-header .ant-menu {
+    margin: 0 auto;
+    /* Centers the menu */
+}

@@ -1,0 +1,19 @@
+.like-component {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+}
+
+.like-component h3 {
+    margin-left: 10px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.like-component img {
+    border-radius: 50%;
+    border: 2px solid #eee;
+}

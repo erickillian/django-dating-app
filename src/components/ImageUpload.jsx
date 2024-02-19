@@ -4,6 +4,8 @@ import { uploadUserPicture } from '../actions/userActions'; // Import your actio
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import './ImageUpload.css';
+import { Button, Upload, Modal, Progress } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
 async function getCroppedImg(imageSrc, pixelCrop) {
     const image = new Image();
@@ -39,54 +41,68 @@ async function getCroppedImg(imageSrc, pixelCrop) {
 
 
 const ImageUpload = () => {
-    const [selectedFile, setSelectedFile] = useState(null);
     const [imageSrc, setImageSrc] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-    const [croppedImage, setCroppedImage] = useState(null);
-    const [showCropper, setShowCropper] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const dispatch = useDispatch();
     const uploadProgress = useSelector(state => state.user.upload_progress);
     const isUploading = useSelector(state => state.user.user_uploading);
 
-    const handleFileSelect = (event) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.addEventListener('load', () => setImageSrc(reader.result));
-            reader.readAsDataURL(event.target.files[0]);
-            setShowCropper(true); // Show the cropper
+    const handleFileChange = info => {
+        if (info.fileList && info.fileList.length > 0) {
+            const file = info.fileList[0].originFileObj;
+            getBase64(file, imageUrl => {
+                setImageSrc(imageUrl);
+                setModalVisible(true);
+            });
         }
     };
 
-
     const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
         setCroppedAreaPixels(croppedAreaPixels);
-        setShowCropper(true); // Show the cropper
     }, []);
 
     const handleUpload = async () => {
         try {
             const croppedImg = await getCroppedImg(imageSrc, croppedAreaPixels);
-            setCroppedImage(croppedImg);
-            setShowCropper(false);
-            dispatch(uploadUserPicture(croppedImg)); // Upload the cropped image
-            setImageSrc(null);
+            dispatch(uploadUserPicture(croppedImg));
+            setModalVisible(false);
         } catch (e) {
             console.error(e);
         }
     };
-    const cancelUpload = () => {
-        setShowCropper(false); // Hide the cropper
-        setImageSrc(null);
+
+    const handleCancel = () => {
+        setModalVisible(false);
     };
 
     return (
         <div>
-            <input type="file" accept="image/*" onChange={handleFileSelect} />
-            {showCropper && imageSrc && (
-                <div className="cropper-container">
+            <Upload
+                beforeUpload={() => false}
+                onChange={handleFileChange}
+                showUploadList={false}
+            >
+                <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
+            <Modal
+                visible={modalVisible}
+                title="Crop Image"
+                onCancel={handleCancel}
+                width={800} // You can adjust this value as needed
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Discard Image
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleUpload}>
+                        Save Image
+                    </Button>,
+                ]}
+            >
+                <div style={{ width: '100%', height: '400px' }}> {/* Adjust height as needed */}
                     <Cropper
                         image={imageSrc}
                         crop={crop}
@@ -96,26 +112,18 @@ const ImageUpload = () => {
                         onZoomChange={setZoom}
                         onCropComplete={onCropComplete}
                     />
-                    <div className="cropper-buttons">
-                        <button className="crop-save-button" onClick={handleUpload}>
-                            Save Image
-                        </button>
-                        <button className="crop-discard-button" onClick={cancelUpload}>
-                            Discard Image
-                        </button>
-                        {
-                            isUploading && (
-                                <div>
-                                    <div>Uploading...</div>
-                                    <progress value={uploadProgress} max="100"></progress>
-                                </div>
-                            )
-                        }
-                    </div>
                 </div>
-            )}
-        </div >
+                {isUploading && <Progress percent={uploadProgress} />}
+            </Modal>
+
+        </div>
     );
 };
+
+function getBase64(file, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => callback(reader.result);
+}
 
 export default ImageUpload;

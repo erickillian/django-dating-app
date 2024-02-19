@@ -173,5 +173,26 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return UserPictureSerializer(pictures, many=True).data
 
 
+class BasicUserInfoSerializer(serializers.ModelSerializer):
+    first_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            "full_name",
+            "id",
+            "first_picture",
+        ]
+        read_only_fields = ["id", "age"]
+
+    def get_first_picture(self, obj):
+        picture = (
+            UserPicture.objects.filter(in_profile=True, user_profile__id=obj.id)
+            .order_by("profile_order")
+            .first()
+        )
+        return picture.image.url
+
+
 class SelectedPicturesSerializer(serializers.Serializer):
     selected_pictures = serializers.ListField(child=serializers.IntegerField())

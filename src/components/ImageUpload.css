@@ -1,21 +1,39 @@
+/* ImageUpload.css */
+
 .cropper-container {
-    position: static;
-    /* Establishes a positioning context */
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
 }
 
 .cropper-buttons {
-    position: absolute;
-    bottom: 10px;
-    /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    /* Center the buttons container horizontally */
-    z-index: 100;
-    /* Ensure the buttons are above the cropper overlay */
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
 }
 
 .crop-save-button,
 .crop-discard-button {
-    margin: 5px;
-    /* Additional styling */
+    padding: 8px 15px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.crop-save-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.crop-discard-button {
+    background-color: #f44336;
+    color: white;
+}
+
+input[type="file"] {
+    margin: 20px auto;
+    display: block;
 }

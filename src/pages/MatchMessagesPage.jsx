@@ -17,15 +17,13 @@ const MatchMessagesPage = () => {
     const [isTyping, setIsTyping] = useState(false);
     const ws = useRef(null);
     const userToken = useSelector(state => state.user.token);
+    let typingTimeout = null;
 
     useEffect(() => {
-        // Function to fetch previous messages
         const fetchPreviousMessages = async () => {
             try {
-                const response = await api.get(`http://localhost/dating/matches/${match_id}/messages`, {
-                    headers: { Authorization: `Token ${userToken}` }
-                });
-                setMessages(response.data); // Assuming the response has a messages array
+                const response = await api.get(`/dating/matches/${match_id}/messages`);
+                setMessages(response.data);
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
@@ -55,7 +53,7 @@ const MatchMessagesPage = () => {
         return () => {
             ws.current.close();
         };
-    }, [match_id]);
+    }, [match_id, userToken]);
 
     const sendMessage = () => {
         if (newMessage) {
@@ -72,7 +70,7 @@ const MatchMessagesPage = () => {
             ws.current.send(JSON.stringify({ type: 'typing', is_typing: true }));
         }
         clearTimeout(typingTimeout);
-        const typingTimeout = setTimeout(() => {
+        typingTimeout = setTimeout(() => {
             setTyping(false);
             ws.current.send(JSON.stringify({ type: 'typing', is_typing: false }));
         }, 500);
@@ -80,16 +78,15 @@ const MatchMessagesPage = () => {
 
     return (
         <Layout>
-            <Content style={{ padding: '50px' }}>
-                <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
-                    <h1>Match Messages {match_id}</h1>
+            <Content style={{ maxWidth: '600px', margin: 'auto' }}>
+                <div style={{ background: '#fff', minHeight: 280 }}>
                     <List
                         itemLayout="horizontal"
                         dataSource={messages}
                         renderItem={item => (
                             <List.Item>
                                 <List.Item.Meta
-                                    title={<strong>{item.user}:</strong>}
+                                    title={<strong>{item.user.full_name}:</strong>}
                                     description={item.message}
                                 />
                             </List.Item>

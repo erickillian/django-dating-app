@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Rating, Match, Message
-from dating.users.serializers import UserProfileSerializer
+from dating.users.serializers import UserProfileSerializer, BasicUserInfoSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -41,7 +41,7 @@ class RateSerializer(serializers.Serializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    user = serializers.IntegerField(source="sender.id")
+    user = BasicUserInfoSerializer(source="sender")
 
     class Meta:
         model = Message
