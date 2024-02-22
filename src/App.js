@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { checkUserAuthentication } from './actions/userActions';
-import LoginForm from './components/LoginForm';
+
 import LogoutComponent from './components/LogoutComponent';
+
+
+import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
@@ -79,7 +82,7 @@ const App = () => {
                 <Routes>
                     <>
                         <Route path="/" element={<HomePage />} />
-                        <Route path="/login" element={<LoginForm />} />
+                        <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<div>Register</div>} />
                         <Route path="*" element={<Navigate to="/login" replace />} />
                     </>
