@@ -20,12 +20,11 @@ const HomePage = () => {
                 <div className="header-brand">
                     <h5>Django-Dating-App</h5>
                 </div>
-                <Menu mode="horizontal" defaultSelectedKeys={['1']} style={{ borderBottom: 'none' }}>
-                    <Menu.Item key="1">
-                        <Link to="/">Home</Link>
-                    </Menu.Item>
+                <Menu>
+                    <Link to="/login"><Button type="primary" style={{ marginRight: '10px' }}>Login</Button></Link>
+                    <Link to="/register"><Button type="primary">Create Account</Button></Link>
                 </Menu>
-                <Link to="/login"><Button type="primary">Login</Button></Link>
+
             </Header>
             <Content style={{ padding: '50px', textAlign: 'center' }}>
                 <div style={{ marginTop: '20px' }}>

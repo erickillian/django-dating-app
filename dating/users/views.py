@@ -69,7 +69,9 @@ def register_user(request):
             phone_number=serializer.validated_data["phone_number"]
         )
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key})
+        return Response(
+            {"token": token.key, "user_profile": MyUserProfileSerializer(user).data}
+        )
     else:
         return Response(serializer.errors, status=400)
 

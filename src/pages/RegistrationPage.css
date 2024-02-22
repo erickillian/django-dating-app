@@ -1,0 +1,12 @@
+/* Ensure the captcha fits within the card without overflow */
+.h-captcha {
+    margin-bottom: 15px;
+}
+
+.captcha-container {
+    display: flex;
+    justify-content: center;
+    /* This will center the captcha horizontally */
+    margin-top: 20px;
+    /* Add some space above the captcha */
+}

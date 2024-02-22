@@ -14,6 +14,20 @@ export const loginUser = (phone_number, password, captcha) => {
     };
 };
 
+export const registerUser = (phone_number, password, captcha) => {
+    return async dispatch => {
+        dispatch({ type: 'REGISTER_START' });
+        try {
+            const response = await api.post('/user/auth/register', { phone_number, password, captcha });
+            dispatch({ type: 'LOGIN_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'REGISTER_ERROR', payload: error.response.data });
+        } finally {
+            dispatch({ type: 'REGISTER_END' });
+        }
+    };
+};
+
 export const logoutUser = () => {
     return async dispatch => {
         dispatch({ type: 'LOGOUT_START' });

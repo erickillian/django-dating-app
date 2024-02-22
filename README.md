@@ -74,7 +74,7 @@ This will create 100 dummy ratings for the dummy users you added
 ## TODO:
 
 - [x] Improve UI of login page
-- [ ] Add user registration page
+- [x] Add user registration page
 - [ ] Implement Frontend to notify users of matches and likes (notification system)
 - [ ] Write comprehensive unit tests for backend
 - [ ] Add more profile options such as prompts and interests

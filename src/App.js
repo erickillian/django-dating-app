@@ -15,7 +15,9 @@ import LikesPage from './pages/LikesPage';
 import MatchesPage from './pages/MatchesPage';
 import MatchMessagesPage from './pages/MatchMessagesPage';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
+import RegistrationPage from './pages/RegistrationPage';
 import 'antd/dist/antd.js';
+
 
 const App = () => {
     const dispatch = useDispatch();
@@ -83,7 +85,7 @@ const App = () => {
                     <>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<div>Register</div>} />
+                        <Route path="/register" element={<RegistrationPage />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </>
                 </Routes>

@@ -3,6 +3,9 @@ const initialState = {
     auth_errors: null,
     auth_loading: false,
 
+    register_loading: false,
+    register_errors: null,
+
     user_profile: null,
     user_profile_loading: false,
     user_profile_error: null,
@@ -26,6 +29,12 @@ const userReducer = (state = initialState, action) => {
             return { ...state, auth_errors: action.payload, token: null };
         case 'LOGIN_END':
             return { ...state, auth_loading: false };
+        case 'REGISTER_START':
+            return { ...state, register_loading: true, register_errors: null };
+        case 'REGISTER_ERROR':
+            return { ...state, register_errors: action.payload };
+        case 'REGISTER_END':
+            return { ...state, register_loading: false };
         case 'LOGOUT_START':
             return { ...state, auth_loading: true };
         case 'LOGOUT_SUCCESS':
