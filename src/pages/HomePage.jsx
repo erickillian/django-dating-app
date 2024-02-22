@@ -1,43 +1,40 @@
-// homepage.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Layout, Menu, Carousel, Typography, Button } from 'antd';
+import { DribbbleOutlined, TwitterOutlined, InstagramOutlined, GithubOutlined } from "@ant-design/icons";
 
-function Header() {
-    return (
-        <header>
-            <h1>Test Dating Site</h1>
-        </header>
-    );
-}
+const { Header, Footer, Content } = Layout;
+const { Title } = Typography;
 
-function MainContent() {
-    return (
-        <main>
-            <section>
-                <h2>About</h2>
-                <p>This is a simple GUI in react to test the functionality of this simple dating site</p>
-            </section>
-            <a href='/login'>Login Here</a>
-            {/* Additional sections can be added here */}
-        </main>
-    );
-}
+// Placeholder images
+const carouselImages = [
+    '/homepage.jpg', // Replace with your image URLs
+    '/homepage.jpg',
+    '/homepage.jpg',
+];
 
-function Footer() {
+const HomePage = () => {
     return (
-        <footer>
-            <p>&copy;{new Date().getFullYear()} Django-Dating-App</p>
-        </footer>
+        <Layout className="layout-default">
+            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+                <div className="header-brand">
+                    <h5>Django-Dating-App</h5>
+                </div>
+                <Menu mode="horizontal" defaultSelectedKeys={['1']} style={{ borderBottom: 'none' }}>
+                    <Menu.Item key="1">
+                        <Link to="/">Home</Link>
+                    </Menu.Item>
+                </Menu>
+                <Link to="/login"><Button type="primary">Login</Button></Link>
+            </Header>
+            <Content style={{ padding: '50px', textAlign: 'center' }}>
+                <div style={{ marginTop: '20px' }}>
+                    <Title>Find Your Match</Title>
+                    <p>Discover love and happiness with this dating app</p>
+                </div>
+            </Content>
+        </Layout>
     );
-}
-
-function HomePage() {
-    return (
-        <div>
-            <Header />
-            <MainContent />
-            <Footer />
-        </div>
-    );
-}
+};
 
 export default HomePage;
