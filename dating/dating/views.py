@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
-from ..users.serializers import UserProfileSerializer
+from ..users.serializers import UserProfileSerializer, MinimalUserProfileSerializer
 from ..users.models import UserProfile
 from .consumers import send_notification
 
@@ -143,7 +143,7 @@ def handle_rate(action, rater, rated):
         send_notification(
             rated.id,
             {
-                "type": "new_match",
+                "type": "match",
                 "user": UserProfileSerializer(rater).data,
                 "match_id": m.id,
             },
@@ -151,8 +151,9 @@ def handle_rate(action, rater, rated):
         send_notification(
             rater.id,
             {
-                "type": "new_match",
+                "type": "match",
                 "user": UserProfileSerializer(rated).data,
+                "match_id": m.id,
             },
         )
     else:
@@ -162,7 +163,8 @@ def handle_rate(action, rater, rated):
                 rated.id,
                 {
                     "type": "like",
-                    "user": UserProfileSerializer(rater).data,
+                    "user": MinimalUserProfileSerializer(rater).data,
+                    "num_likes": rated.num_likes,
                 },
             )
 

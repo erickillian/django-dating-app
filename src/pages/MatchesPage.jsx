@@ -25,11 +25,7 @@ const MatchesPage = () => {
                     dataSource={matches}
                     renderItem={match => (
                         <List.Item>
-                            <Row justify="center" style={{ width: '100%' }}>
-                                <Col span={24} style={{ maxWidth: '600px', textAlign: 'center' }}>
-                                    <MatchComponent match={match} />
-                                </Col>
-                            </Row>
+                            <MatchComponent match={match} />
                         </List.Item>
                     )}
                 />

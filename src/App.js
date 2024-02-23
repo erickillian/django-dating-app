@@ -22,46 +22,10 @@ import 'antd/dist/antd.js';
 const App = () => {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => (state.user.token !== null));
-    const userToken = useSelector(state => state.user.token);
-    const [webSocket, setWebSocket] = useState(null);
 
     useEffect(() => {
         dispatch(checkUserAuthentication());
     }, [dispatch]);
-
-    useEffect(() => {
-        // Function to initialize WebSocket connection to handle real-time messages such as matches
-        const connectWebSocket = () => {
-            // Replace with your WebSocket connection URL
-            document.cookie = 'Authorization=' + userToken + '; path=/';
-            const ws = new WebSocket("ws://localhost/ws/dating/");
-
-            ws.onopen = () => {
-                console.log('WebSocket Connected');
-            };
-
-            ws.onmessage = (e) => {
-                const message = JSON.parse(e.data);
-                console.log('Message from server: ', message);
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket Disconnected');
-            };
-
-            return ws;
-        };
-
-        if (isAuthenticated && !webSocket) {
-            setWebSocket(connectWebSocket());
-        }
-
-        return () => {
-            if (webSocket) {
-                webSocket.close();
-            }
-        };
-    }, [isAuthenticated, webSocket]);
 
     return (
         <Router>

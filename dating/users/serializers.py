@@ -173,6 +173,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return UserPictureSerializer(pictures, many=True).data
 
 
+class MinimalUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ["id", "full_name"]
+        read_only_fields = ["id"]
+
+
 class BasicUserInfoSerializer(serializers.ModelSerializer):
     first_picture = serializers.SerializerMethodField()
 
