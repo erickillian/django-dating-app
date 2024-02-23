@@ -2,39 +2,41 @@ html,
 body {
     margin: 0;
     padding: 0;
+    height: 100%;
 }
 
 .ant-layout {
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: transparent;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* 100% of the viewport height */
 }
 
 .ant-layout-content {
-    padding: 0;
-}
-
-
-.site-layout-content {
+    flex: 1;
+    /* This will make the content expand to fill the available space */
     padding: 24px;
     background: #fff;
-    min-height: 280px;
-    /* Adjust as needed */
+    /* Assuming this is the color you want */
+    display: flex;
+    justify-content: center;
+    align-items: top;
 }
 
+.ant-layout-footer {
+    padding: 24px 50px;
+    /* Adjust the padding as needed */
+    text-align: center;
+    background: #f0f2f5;
+    /* Example footer background color */
+}
+
+/* Additional styles for header and other elements */
 .layout .ant-layout-header {
     display: grid;
     justify-content: center;
+    /* This will place elements at the ends of the header */
     align-items: center;
-}
-
-.layout .ant-layout-header .logo {
-    margin-right: auto;
-    /* Adjusts logo position */
-}
-
-.layout .ant-layout-header .ant-menu {
-    margin: 0 auto;
-    /* Centers the menu */
+    padding: 0 50px;
+    /* Adjust as needed */
 }

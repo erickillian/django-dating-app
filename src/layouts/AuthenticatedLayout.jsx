@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import './AuthenticatedLayout.css';
 import { useLocation } from 'react-router-dom';
+import NotificationComponent from '../components/NotificationComponent';
 
 const { Header, Content, Footer } = Layout;
 
@@ -21,16 +22,17 @@ const AuthenticatedLayout = ({ children }) => {
 
     return (
         <Layout className="layout">
-            <Header>
+            <NotificationComponent />
+            <Header className="header">
                 <div className="logo" /> {/* Add your logo or branding here */}
                 <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[location.pathname.split("/")[1]]} items={menuItems} />
             </Header>
-            <Content>
+            <Content style={{ flex: '1 0 auto' }} className="content">
                 <div className="site-layout-content">
                     {children}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>
+            <Footer>
                 django-dating-app ©{new Date().getFullYear()}
             </Footer>
         </Layout>
