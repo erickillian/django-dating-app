@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserInfo, updateUserInfo, fetchUserPictures, updateUserPicturesOrder } from '../actions/userActions';
-import ImageUpload from '../components/ImageUpload';
-import EditUserPictureComponent from '../components/EditUserPictureComponent';
+import { fetchUserInfo, updateUserInfo } from '../actions/userActions';
+import UserPicturesManager from '../components/UserPicturesManager';
 
 import { Form, Input, Select, Button, Spin, message, Row, Col, Card, Flex } from 'antd';
 import "./EditProfilePage.css";
@@ -19,12 +18,10 @@ const formFields = {
 const ProfilePage = () => {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.user_profile);
-    const pictures = useSelector(state => state.user.user_pictures);
     const loading = useSelector(state => state.user.loading);
     const error = useSelector(state => state.user.error);
 
     const [userProfileState, setUserProfileState] = useState({});
-    const [selectedPictures, setSelectedPictures] = useState([]);
 
     useEffect(() => {
         if (!user) {
@@ -34,29 +31,14 @@ const ProfilePage = () => {
         }
     }, [dispatch, user]);
 
-    useEffect(() => {
-        if (!pictures) {
-            dispatch(fetchUserPictures());
-        } else {
-            // Gets pictures that are in the users profile, and sorts them by picture order.  Then maps the picture id's to an array.
-            let selected_picture_ordering = pictures.filter(picture => picture.in_profile).sort((a, b) => a.picture_order - b.picture_order).map(picture => picture.id);
-            // console.log(selected_picture_ordering);
-            setSelectedPictures(selected_picture_ordering);
-        }
-    }, [dispatch, pictures]);
-
     const handleChange = (event) => {
-        // Check if event has 'target' property (standard event object)
         if (event.target) {
             const value = event.target.value === 'Prefer not to say' ? '' : event.target.value;
             setUserProfileState({
                 ...userProfileState,
                 [event.target.name]: value
             });
-        }
-        // Handle custom object (like { full_name: "Eric Killian3" })
-        else if (typeof event === 'object' && event !== null) {
-            // Assuming the object's key is the field's name and its value is the field's value
+        } else if (typeof event === 'object' && event !== null) {
             const key = Object.keys(event)[0];
             const value = event[key] === 'Prefer not to say' ? '' : event[key];
             setUserProfileState({
@@ -66,51 +48,14 @@ const ProfilePage = () => {
         }
     };
 
-
-    const handlePictureClick = (pictureId) => {
-        setSelectedPictures(prevSelected => {
-            if (prevSelected.includes(pictureId)) {
-                return prevSelected.filter(id => id !== pictureId);
-            } else {
-                return [...prevSelected, pictureId];
-            }
-        });
-    };
-
     const handleSubmit = (event) => {
-        // event.preventDefault();
         dispatch(updateUserInfo(userProfileState));
     };
 
-    const savePictureOrder = () => {
-        dispatch(updateUserPicturesOrder(selectedPictures));
-    };
-
-    // Render user information or loading/error message
     return (
         <Flex>
             <Col span={12}>
-                <Card title="Your Pictures" bordered={false}>
-                    <Row gutter={[8, 8]} /* Adjust gutter for spacing */>
-                        {pictures && pictures.length > 0 && pictures.map(picture => (
-                            <Col key={picture.id} xs={24} sm={12} md={8} lg={6} /* Adjust column sizes as needed */>
-                                <div onClick={() => handlePictureClick(picture.id)}>
-                                    <EditUserPictureComponent
-                                        picture={picture}
-                                        selected={selectedPictures.includes(picture.id)}
-                                        selected_order={selectedPictures.includes(picture.id) ? selectedPictures.indexOf(picture.id) + 1 : -1}
-                                    />
-                                </div>
-                            </Col>
-                        ))}
-                    </Row>
-                    <Row>
-                        <Button onClick={savePictureOrder} type="primary">Save Picture Order</Button>
-                    </Row>
-                    <Row>
-                        <ImageUpload />
-                    </Row>
-                </Card>
+                <UserPicturesManager />
             </Col>
             <Col span={12}>
                 {loading && <Spin />}
