@@ -16,6 +16,7 @@ const NotificationComponent = () => {
             message: 'New Like',
             description: `You recieved a liked from ${user.full_name}`,
             duration: 3,
+            placement: "top",
         });
     };
 
