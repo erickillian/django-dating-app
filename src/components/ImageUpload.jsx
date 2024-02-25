@@ -4,7 +4,7 @@ import { uploadUserPicture } from '../actions/userActions'; // Import your actio
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import './ImageUpload.css';
-import { Button, Upload, Modal, Progress } from 'antd';
+import { Button, Upload, Modal, Progress, Card } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 async function getCroppedImg(imageSrc, pixelCrop) {
@@ -45,18 +45,21 @@ const ImageUpload = () => {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const dispatch = useDispatch();
     const uploadProgress = useSelector(state => state.user.upload_progress);
     const isUploading = useSelector(state => state.user.user_uploading);
 
     const handleFileChange = info => {
-        if (info.fileList && info.fileList.length > 0) {
-            const file = info.fileList[0].originFileObj;
+        console.log("info", info);
+        const fileList = info.fileList;
+        if (fileList && fileList.length > 0) {
+            // Always use the last file in the fileList
+            const file = fileList[fileList.length - 1].originFileObj;
             getBase64(file, imageUrl => {
                 setImageSrc(imageUrl);
-                setModalVisible(true);
+                setIsModalOpen(true);
             });
         }
     };
@@ -69,54 +72,58 @@ const ImageUpload = () => {
         try {
             const croppedImg = await getCroppedImg(imageSrc, croppedAreaPixels);
             dispatch(uploadUserPicture(croppedImg));
-            setModalVisible(false);
+            setIsModalOpen(false);
         } catch (e) {
             console.error(e);
         }
     };
 
     const handleCancel = () => {
-        setModalVisible(false);
+        setIsModalOpen(false);
     };
 
     return (
-        <div>
-            <Upload
-                beforeUpload={() => false}
-                onChange={handleFileChange}
-                showUploadList={false}
-            >
-                <Button icon={<UploadOutlined />}>Upload Image</Button>
-            </Upload>
-            <Modal
-                visible={modalVisible}
-                title="Crop Image"
-                onCancel={handleCancel}
-                width={800} // You can adjust this value as needed
-                footer={[
-                    <Button key="back" onClick={handleCancel}>
-                        Discard Image
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleUpload}>
-                        Save Image
-                    </Button>,
-                ]}
-            >
-                <div style={{ width: '100%', height: '400px' }}> {/* Adjust height as needed */}
-                    <Cropper
-                        image={imageSrc}
-                        crop={crop}
-                        zoom={zoom}
-                        aspect={1}
-                        onCropChange={setCrop}
-                        onZoomChange={setZoom}
-                        onCropComplete={onCropComplete}
-                    />
-                </div>
-                {isUploading && <Progress percent={uploadProgress} />}
-            </Modal>
+        <Card hoverable style={{ width: 240 }}> {/* Adjust width as needed */}
+            <div className="card-container">
+                <Upload
+                    beforeUpload={() => false}
+                    onChange={handleFileChange}
+                    showUploadList={false}
+                    footer={[
+                        <Button key="back" onClick={handleCancel}>
+                            Discard Image
+                        </Button>,
+                        <Button key="submit" type="primary" onClick={handleUpload}>
+                            Save Image
+                        </Button>,
+                    ]}
+                >
+                    <Button icon={<UploadOutlined />}>Upload Image</Button>
 
-        </div>
+                </Upload>
+                <Modal
+                    title="Crop Image"
+                    open={isModalOpen}
+                    onOk={handleUpload}
+                    onCancel={handleCancel}
+                    width={800} // You can adjust this value as needed
+                >
+                    <div style={{ width: '100%', height: '500px' }}> {/* Adjust height as needed */}
+                        <Cropper
+                            classes={{ containerClassName: "cropper-container", mediaClassName: "cropper-media", cropAreaClassName: "cropper-croparea" }}
+                            image={imageSrc}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={1}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                        />
+                    </div>
+                    {isUploading && <Progress percent={uploadProgress} />}
+                </Modal>
+            </div>
+        </Card>
     );
 };
 
