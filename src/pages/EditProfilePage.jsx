@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserInfo, updateUserInfo } from '../actions/userActions';
 import UserPicturesManager from '../components/UserPicturesManager';
-
 import { Form, Input, Select, Button, Spin, message, Row, Col, Card, Flex } from 'antd';
 import "./EditProfilePage.css";
 
@@ -53,15 +52,15 @@ const ProfilePage = () => {
     };
 
     return (
-        <Flex>
-            <Col span={12}>
+        <Row gutter={[16, 16]}>
+            <Col s={24} m={24} l={24} xl={24}>
                 <UserPicturesManager />
             </Col>
-            <Col span={12}>
-                {loading && <Spin />}
-                {error && message.error(`Error: ${error}`)}
-                {user && (
-                    <Card title="Edit Profile" bordered={false}>
+            <Col s={24} m={24} l={24} xl={24}>
+                <Card title="Edit Profile" bordered={false}>
+                    {loading && <Spin />}
+                    {error && message.error(`Error: ${error}`)}
+                    {user && (
                         <Form layout="vertical" onValuesChange={handleChange} onFinish={handleSubmit} initialValues={user}>
                             {Object.keys(formFields).map(key => {
                                 const field = formFields[key];
@@ -81,10 +80,10 @@ const ProfilePage = () => {
                             })}
                             <Button type="primary" htmlType="submit">Save Changes</Button>
                         </Form>
-                    </Card>
-                )}
+                    )}
+                </Card>
             </Col>
-        </Flex>
+        </Row>
     );
 };
 
