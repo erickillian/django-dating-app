@@ -27,10 +27,8 @@ const AuthenticatedLayout = ({ children }) => {
                 <div className="logo" /> {/* Add your logo or branding here */}
                 <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[location.pathname.split("/")[1]]} items={menuItems} />
             </Header>
-            <Content style={{ flex: '1 0 auto' }} className="content">
-                <div className="site-layout-content">
-                    {children}
-                </div>
+            <Content>
+                {children}
             </Content>
             <Footer>
                 django-dating-app ©{new Date().getFullYear()}
