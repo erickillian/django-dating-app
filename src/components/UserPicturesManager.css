@@ -1,0 +1,7 @@
+.custom-upload-list .ant-upload,
+.custom-upload-list .ant-upload-list-item-container {
+    width: 200px !important;
+    /* Increase width */
+    height: 200px !important;
+    /* Increase height */
+}
