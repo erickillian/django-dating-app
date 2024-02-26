@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Row, Col, Card, Button } from 'antd';
-import ImageUpload from '../components/ImageUpload';
-import EditUserPictureComponent from '../components/EditUserPictureComponent';
-import { fetchUserPictures, updateUserPicturesOrder } from '../actions/userActions';
+import { Card, Modal, Upload } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import ImgCrop from 'antd-img-crop';
+import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
+import "./UserPicturesManager.css";
+
+const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
 
 const UserPicturesManager = () => {
     const dispatch = useDispatch();
     const pictures = useSelector(state => state.user.user_pictures);
+    const pictures_loading = useSelector(state => state.user.pictures_loading);
+    const delete_picture_loading = useSelector(state => state.user.delete_picture_loading);
+    const upload_picture_progress = useSelector(state => state.user.user_upload_progress);
 
-    const [selectedPictures, setSelectedPictures] = useState([]);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [fileList, setFileList] = useState([]);
 
     useEffect(() => {
         dispatch(fetchUserPictures());
@@ -17,50 +32,79 @@ const UserPicturesManager = () => {
 
     useEffect(() => {
         if (pictures) {
-            let selectedPictureOrdering = pictures
-                .filter(picture => picture.in_profile)
-                .sort((a, b) => a.picture_order - b.picture_order)
-                .map(picture => picture.id);
-
-            setSelectedPictures(selectedPictureOrdering);
+            const formattedFileList = pictures.map(picture => ({
+                uid: picture.id,
+                name: picture.name,
+                status: 'done',
+                url: `http://localhost${picture.image}`
+            }));
+            setFileList(formattedFileList);
         }
     }, [pictures]);
 
-    const handlePictureClick = (pictureId) => {
-        setSelectedPictures(prevSelected => {
-            if (prevSelected.includes(pictureId)) {
-                return prevSelected.filter(id => id !== pictureId);
-            } else {
-                return [...prevSelected, pictureId];
-            }
-        });
+    const handlePreview = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
     };
 
-    const savePictureOrder = () => {
-        dispatch(updateUserPicturesOrder(selectedPictures));
+    const handleChange = async ({ fileList: newFileList, file }) => {
+
     };
+
+    const handleUpload = async (options) => {
+        const { file, onSuccess, onError } = options;
+        dispatch(uploadUserPicture(file));
+    }
+
+    const handleDragEnd = (sourceId, sourceIndex, targetIndex, targetId) => {
+        if (sourceIndex === targetIndex) return;
+
+        const newGridItems = [...gridItems];
+        const [removed] = newGridItems.splice(sourceIndex, 1);
+        newGridItems.splice(targetIndex, 0, removed);
+
+        setGridItems(newGridItems);
+        // Update fileList based on new order
+        setFileList(newGridItems.map(item => item.content));
+    };
+
+    const handleRemove = (file) => {
+        // Call the deleteUserPicture action creator
+        dispatch(deleteUserPicture(file.uid));
+    };
+
+    const uploadButton = (
+        <div>
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </div>
+    );
 
     return (
         <Card title="Your Pictures" bordered={false}>
-            <Row gutter={[8, 8]}>
-                {pictures && pictures.length > 0 && pictures.map(picture => (
-                    <Col key={picture.id} xs={24} sm={12} md={8} lg={6}>
-                        <div onClick={() => handlePictureClick(picture.id)}>
-                            <EditUserPictureComponent
-                                picture={picture}
-                                selected={selectedPictures.includes(picture.id)}
-                                selected_order={selectedPictures.includes(picture.id) ? selectedPictures.indexOf(picture.id) + 1 : -1}
-                            />
-                        </div>
-                    </Col>
-                ))}
-            </Row>
-            <Row>
-                <Button onClick={savePictureOrder} type="primary">Save Picture Order</Button>
-            </Row>
-            <Row>
-                <ImageUpload />
-            </Row>
+            <ImgCrop rotationSlider={true} showGrid={true} aspect={1} modalWidth={1024} quality={1}>
+                <Upload
+                    customRequest={handleUpload}
+                    className="custom-upload-list"
+                    listType="picture-card"
+                    fileList={fileList}
+                    onPreview={handlePreview}
+                    onChange={handleChange}
+                    onRemove={handleRemove}
+                >
+                    {fileList.map(file => (
+                        file.status === 'uploading' && <Progress percent={upload_picture_progress} />
+                    ))}
+                    {fileList.length >= 8 ? null : uploadButton}
+                </Upload>
+            </ImgCrop>
+            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
+                <img alt="example" style={{ width: '100%' }} src={previewImage} />
+            </Modal>
         </Card>
     );
 };
