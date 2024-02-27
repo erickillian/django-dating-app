@@ -5,3 +5,11 @@
     height: 200px !important;
     /* Increase height */
 }
+
+.is-dragging a {
+    pointer-events: none;
+}
+
+.draggable-item {
+    display: inline - block;
+}

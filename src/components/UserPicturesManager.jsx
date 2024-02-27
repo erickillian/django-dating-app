@@ -6,6 +6,12 @@ import ImgCrop from 'antd-img-crop';
 import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
 import "./UserPicturesManager.css";
 
+// Drag and drop
+import { DndContext, PointerSensor, useSensor, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -13,6 +19,22 @@ const getBase64 = (file) =>
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
     });
+
+const DraggableUploadListItem = ({ file, originNode }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: file.uid });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            {originNode}
+        </div>
+    );
+};
+
 
 const UserPicturesManager = () => {
     const dispatch = useDispatch();
@@ -25,6 +47,8 @@ const UserPicturesManager = () => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
+
+    const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
 
     useEffect(() => {
         dispatch(fetchUserPictures());
@@ -60,22 +84,22 @@ const UserPicturesManager = () => {
         dispatch(uploadUserPicture(file));
     }
 
-    const handleDragEnd = (sourceId, sourceIndex, targetIndex, targetId) => {
-        if (sourceIndex === targetIndex) return;
-
-        const newGridItems = [...gridItems];
-        const [removed] = newGridItems.splice(sourceIndex, 1);
-        newGridItems.splice(targetIndex, 0, removed);
-
-        setGridItems(newGridItems);
-        // Update fileList based on new order
-        setFileList(newGridItems.map(item => item.content));
-    };
-
     const handleRemove = (file) => {
         // Call the deleteUserPicture action creator
         dispatch(deleteUserPicture(file.uid));
     };
+
+    const onDragEnd = ({ active, over }) => {
+        if (active.id !== over?.id) {
+            setFileList((prev) => {
+                const activeIndex = prev.findIndex((i) => i.uid === active.id);
+                const overIndex = prev.findIndex((i) => i.uid === over?.id);
+                return arrayMove(prev, activeIndex, overIndex);
+            });
+        }
+    };
+
+
 
     const uploadButton = (
         <div>
@@ -86,22 +110,29 @@ const UserPicturesManager = () => {
 
     return (
         <Card title="Your Pictures" bordered={false}>
-            <ImgCrop rotationSlider={true} showGrid={true} aspect={1} modalWidth={1024} quality={1}>
-                <Upload
-                    customRequest={handleUpload}
-                    className="custom-upload-list"
-                    listType="picture-card"
-                    fileList={fileList}
-                    onPreview={handlePreview}
-                    onChange={handleChange}
-                    onRemove={handleRemove}
-                >
-                    {fileList.map(file => (
-                        file.status === 'uploading' && <Progress percent={upload_picture_progress} />
-                    ))}
-                    {fileList.length >= 8 ? null : uploadButton}
-                </Upload>
-            </ImgCrop>
+            <DndContext sensors={[sensor]} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                <SortableContext items={fileList.map(file => file.uid)} strategy={rectSortingStrategy}>
+                    <ImgCrop rotationSlider={true} showGrid={true} aspect={1} modalWidth={1024} quality={1}>
+                        <Upload
+                            customRequest={handleUpload}
+                            className="custom-upload-list"
+                            fileList={fileList}
+                            onPreview={handlePreview}
+                            onChange={handleChange}
+                            onRemove={handleRemove}
+                            listType="picture-card"
+                            itemRender={(originNode, file) => (
+                                <DraggableUploadListItem file={file} originNode={originNode} />
+                            )}
+                        >
+                            {fileList.map(file => (
+                                file.status === 'uploading' && <Progress percent={upload_picture_progress} />
+                            ))}
+                            {fileList.length >= 8 ? null : uploadButton}
+                        </Upload>
+                    </ImgCrop>
+                </SortableContext>
+            </DndContext>
             <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
                 <img alt="example" style={{ width: '100%' }} src={previewImage} />
             </Modal>
