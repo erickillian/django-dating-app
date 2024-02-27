@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Modal, Upload } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
 import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
 import "./UserPicturesManager.css";
@@ -30,7 +30,22 @@ const DraggableUploadListItem = ({ file, originNode }) => {
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            {originNode}
+            <Card
+                hoverable
+                style={{ width: 240 }}
+                cover={
+                    <img
+                        alt="example"
+                        src={file.url || file.preview}
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                        draggable={false}
+                    />
+                }
+                actions={[
+                    <EyeOutlined key="preview" onClick={handleCustomPreview} />,
+                    <DeleteOutlined key="delete" onClick={handleCustomDelete} />,
+                ]}
+            />
         </div>
     );
 };
