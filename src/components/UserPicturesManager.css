@@ -6,6 +6,22 @@
     /* Increase height */
 }
 
+.custom-upload-list .ant-upload-list-item {
+    padding: 0px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+.dropzone .ant-card-body,
+.custom-upload-list .ant-card-body {
+    display: none !important;
+    /* Hide the card body */
+}
+
+.custom-upload-list .ant-upload {
+    z-index: 1 !important;
+}
+
 .is-dragging a {
     pointer-events: none;
 }
