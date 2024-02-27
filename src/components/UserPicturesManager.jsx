@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Modal, Upload } from 'antd';
-import { PlusOutlined, EyeOutlined, DeleteOutlined, DragOutlined } from '@ant-design/icons';
+import { Card, Modal, Upload, message } from 'antd';
+import { PlusOutlined, EyeOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
 import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
 import "./UserPicturesManager.css";
@@ -32,7 +32,7 @@ const UserPicturesManager = () => {
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState([]);
 
-    const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
+    const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 20 } });
 
     useEffect(() => {
         dispatch(fetchUserPictures());
@@ -42,7 +42,7 @@ const UserPicturesManager = () => {
         if (pictures) {
             const formattedFileList = pictures.map(picture => ({
                 uid: picture.id,
-                name: picture.name,
+                name: picture.image.split('/').pop(),
                 status: 'done',
                 url: `http://localhost${picture.image}`
             }));
@@ -58,8 +58,13 @@ const UserPicturesManager = () => {
         setPreviewOpen(true);
     };
 
-    const handleChange = async ({ fileList: newFileList, file }) => {
-
+    const handleChange = async ({ fileList: newFileList }) => {
+        if (newFileList.length > 6) {
+            // Prevent adding more than 6 pictures by removing the last added picture beyond the limit
+            message.error('You can only have up to 6 active pictures.');
+            return;
+        }
+        setFileList(newFileList);
     };
 
     const handleUpload = async (options) => {
@@ -82,7 +87,28 @@ const UserPicturesManager = () => {
         }
     };
 
+    const handleDownload = async (url, fileName) => {
+        try {
+            const response = await fetch(url); // Fetch the image
+            if (!response.ok) throw new Error('Network response was not ok');
+            const blob = await response.blob(); // Convert the response to a blob
+            const blobUrl = window.URL.createObjectURL(blob); // Create a URL for the blob
 
+            // Create an anchor element and set its attributes for download
+            const anchor = document.createElement('a');
+            anchor.href = blobUrl;
+            anchor.download = fileName || 'download'; // Default file name if none provided
+            document.body.appendChild(anchor); // Append to body
+            anchor.click(); // Trigger click to download
+
+            // Clean up by revoking the object URL and removing the anchor element
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(anchor);
+        } catch (error) {
+            console.error('Failed to download the image:', error);
+            // Handle the error, for example, by showing an error message to the user
+        }
+    };
 
     const uploadButton = (
         <div>
@@ -105,6 +131,9 @@ const UserPicturesManager = () => {
             transform: CSS.Transform.toString(transform),
             transition,
             cursor: isDragging ? 'grabbing' : 'grab', // Change the cursor based on the dragging state
+            zIndex: isDragging ? 10 : 1, // Adjust the zIndex based on the dragging state
+            position: isDragging ? 'relative' : 'static', // Add this linez
+            opacity: isDragging ? 0.8 : 1, // Adjust the opacity based on the dragging state
         };
 
         const preview = (e) => {
@@ -119,7 +148,6 @@ const UserPicturesManager = () => {
             <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={isDragging ? 'is-dragging' : ''}>
                 <Card
                     hoverable
-                    style={{ width: 240 }}
                     cover={
                         <img
                             alt={file.name}
@@ -131,8 +159,10 @@ const UserPicturesManager = () => {
                     }
                     actions={[
                         <EyeOutlined key="preview" onClick={(e) => preview(e)} />,
+                        <DownloadOutlined key="download" onClick={() => handleDownload(file.url, file.name)} />,
                         <DeleteOutlined key="delete" onClick={(e) => remove(e)} />,
                     ]}
+
                 />
             </div>
         );
@@ -154,9 +184,9 @@ const UserPicturesManager = () => {
                             )}
                             className={`custom-upload-list ${fileList.length < 8 ? '' : 'hide'}`}
                         >
-                            {fileList.map(file => (
+                            {/* {fileList.map(file => (
                                 file.status === 'uploading' && <Progress percent={upload_picture_progress} />
-                            ))}
+                            ))} */}
                             {uploadButton}
                         </Upload>
                     </ImgCrop>

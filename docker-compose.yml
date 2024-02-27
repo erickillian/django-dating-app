@@ -37,6 +37,7 @@ services:
       MYSQL_PASSWORD: 'password'
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    restart: always
   # mailhog:
   #   image: mailhog/mailhog
   #   ports:

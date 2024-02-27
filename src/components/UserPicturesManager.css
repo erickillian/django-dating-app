@@ -1,8 +1,8 @@
 .custom-upload-list .ant-upload,
 .custom-upload-list .ant-upload-list-item-container {
-    width: 240px !important;
+    width: 200px !important;
     /* Increase width */
-    height: 290px !important;
+    height: 250px !important;
     /* Increase height */
 }
 
@@ -12,18 +12,29 @@
     overflow: hidden !important;
 } */
 
+.custom-upload-list .ant-upload-list {
+    /* Adjust minmax as needed */
+    gap: 16px;
+    /* Adjust the gap as needed */
+    /* Adjust the gap as needed */
+    /* Adjust the gap as needed */
+    justify-content: flex-start !important;
+    /* Align items to the start of the container */
+}
+
+
+/* Hide the card body */
 .dropzone .ant-card-body,
 .custom-upload-list .ant-card-body {
     display: none !important;
-    /* Hide the card body */
 }
 
 .custom-upload-list .ant-upload {
     z-index: 1 !important;
 }
 
-.is-dragging div.ant-upload-list-item {
-    pointer-events: none;
+.is-dragging div {
+    pointer-events: none !important;
 }
 
 .custom-upload-list.hide .ant-upload-select {
