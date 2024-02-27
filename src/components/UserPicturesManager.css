@@ -25,3 +25,7 @@
 .is-dragging div.ant-upload-list-item {
     pointer-events: none;
 }
+
+.hide-upload-area .ant-upload.ant-upload-select-picture-card {
+    display: none;
+}

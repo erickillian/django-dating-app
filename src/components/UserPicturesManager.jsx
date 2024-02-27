@@ -126,6 +126,7 @@ const UserPicturesManager = () => {
                             src={file.url}
                             style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
                             draggable={false}
+                            onClick={(e) => preview(e)}
                         />
                     }
                     actions={[
