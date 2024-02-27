@@ -29,10 +29,6 @@
     display: none !important;
 }
 
-.custom-upload-list .ant-upload {
-    z-index: 1 !important;
-}
-
 .is-dragging div {
     pointer-events: none !important;
 }

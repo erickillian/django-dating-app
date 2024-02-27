@@ -119,8 +119,8 @@ class UserPictureSerializer(serializers.ModelSerializer):
 class ProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPicture
-        fields = ["id", "in_profile", "profile_order", "image"]
-        extra_kwargs = {"profile_order": {"required": True}}
+        fields = ["id", "active", "order", "image"]
+        extra_kwargs = {"order": {"required": True}}
 
 
 class MyUserProfileSerializer(serializers.ModelSerializer):
@@ -145,8 +145,8 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
 
     def get_pictures(self, obj):
         pictures = UserPicture.objects.filter(
-            in_profile=True, user_profile__id=obj.id
-        ).order_by("profile_order")[:6]
+            active=True, user_profile__id=obj.id
+        ).order_by("order")[:6]
         return UserPictureSerializer(pictures, many=True).data
 
 
@@ -168,8 +168,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_pictures(self, obj):
         pictures = UserPicture.objects.filter(
-            in_profile=True, user_profile__id=obj.id
-        ).order_by("profile_order")[:6]
+            active=True, user_profile__id=obj.id
+        ).order_by("order")[:6]
         return UserPictureSerializer(pictures, many=True).data
 
 
@@ -194,8 +194,8 @@ class BasicUserInfoSerializer(serializers.ModelSerializer):
 
     def get_first_picture(self, obj):
         picture = (
-            UserPicture.objects.filter(in_profile=True, user_profile__id=obj.id)
-            .order_by("profile_order")
+            UserPicture.objects.filter(active=True, user_profile__id=obj.id)
+            .order_by("order")
             .first()
         )
         return picture.image.url

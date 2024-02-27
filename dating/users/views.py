@@ -142,15 +142,15 @@ class ProfilePictureSelectionView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        UserPicture.objects.filter(user_profile=request.user).update(in_profile=False)
+        UserPicture.objects.filter(user_profile=request.user).update(active=False)
         order = 0
         for picture_id in selected_pictures:
             try:
                 picture = UserPicture.objects.get(
                     id=picture_id, user_profile=request.user
                 )
-                picture.in_profile = True
-                picture.profile_order = order
+                picture.active = True
+                picture.order = order
                 order += 1
                 picture.save()
             except UserPicture.DoesNotExist:
@@ -169,7 +169,7 @@ class UserPicturesView(APIView):
 
     def get(self, request):
         user_pictures = UserPicture.objects.filter(user_profile=request.user).order_by(
-            "-in_profile", "profile_order"
+            "-active", "order"
         )
         serializer = ProfilePictureSerializer(user_pictures, many=True)
         return Response(serializer.data)

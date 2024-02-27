@@ -121,8 +121,8 @@ class UserPicture(models.Model):
         UserProfile, related_name="profile_pictures", on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to="profile_pics")
-    in_profile = models.BooleanField(default=False)
-    profile_order = models.IntegerField(null=True, blank=True)
+    active = models.BooleanField(default=False)
+    order = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user_profile}'s picture"

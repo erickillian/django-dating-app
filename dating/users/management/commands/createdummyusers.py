@@ -30,7 +30,7 @@ def create_profile_pictures(user_profile, num_pics):
         img_file = File(img_io, name=f"{user_profile.phone_number}_pic_{i}.jpg")
 
         UserPicture.objects.create(
-            user_profile=user_profile, image=img_file, in_profile=True, profile_order=i
+            user_profile=user_profile, image=img_file, active=True, order=i
         )
 
 

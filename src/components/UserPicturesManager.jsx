@@ -43,6 +43,8 @@ const UserPicturesManager = () => {
             const formattedFileList = pictures.map(picture => ({
                 uid: picture.id,
                 name: picture.image.split('/').pop(),
+                active: picture.active,
+                order: picture.order,
                 status: 'done',
                 url: `http://localhost${picture.image}`
             }));
