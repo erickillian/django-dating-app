@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Modal, Upload } from 'antd';
-import { PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, DeleteOutlined, DragOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
 import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
 import "./UserPicturesManager.css";
@@ -19,36 +19,6 @@ const getBase64 = (file) =>
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
     });
-
-const DraggableUploadListItem = ({ file, originNode }) => {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: file.uid });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <Card
-                hoverable
-                style={{ width: 240 }}
-                cover={
-                    <img
-                        alt="example"
-                        src={file.url || file.preview}
-                        style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
-                        draggable={false}
-                    />
-                }
-                actions={[
-                    <EyeOutlined key="preview" onClick={handleCustomPreview} />,
-                    <DeleteOutlined key="delete" onClick={handleCustomDelete} />,
-                ]}
-            />
-        </div>
-    );
-};
 
 
 const UserPicturesManager = () => {
@@ -121,6 +91,53 @@ const UserPicturesManager = () => {
         </div>
     );
 
+    const DraggableUploadListItem = ({ file, originNode, actions }) => {
+        const {
+            attributes,
+            listeners,
+            setNodeRef,
+            transform,
+            transition,
+            isDragging, // This property indicates if the current item is being dragged
+        } = useSortable({ id: file.uid });
+
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+            cursor: isDragging ? 'grabbing' : 'grab', // Change the cursor based on the dragging state
+        };
+
+        const preview = (e) => {
+            handlePreview(file);
+        };
+
+        const remove = (e) => {
+            handleRemove(file);
+        };
+
+        return (
+            <div ref={setNodeRef} style={style} {...attributes} {...listeners} className={isDragging ? 'is-dragging' : ''}>
+                <Card
+                    hoverable
+                    style={{ width: 240 }}
+                    cover={
+                        <img
+                            alt={file.name}
+                            src={file.url}
+                            style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                            draggable={false}
+                        />
+                    }
+                    actions={[
+                        <EyeOutlined key="preview" onClick={(e) => preview(e)} />,
+                        <DeleteOutlined key="delete" onClick={(e) => remove(e)} />,
+                    ]}
+                />
+            </div>
+        );
+    };
+
+
     return (
         <Card title="Your Pictures" bordered={false}>
             <DndContext sensors={[sensor]} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -130,12 +147,10 @@ const UserPicturesManager = () => {
                             customRequest={handleUpload}
                             className="custom-upload-list"
                             fileList={fileList}
-                            onPreview={handlePreview}
                             onChange={handleChange}
-                            onRemove={handleRemove}
                             listType="picture-card"
-                            itemRender={(originNode, file) => (
-                                <DraggableUploadListItem file={file} originNode={originNode} />
+                            itemRender={(originNode, file, fileList, actions) => (
+                                <DraggableUploadListItem file={file} originNode={originNode} actions={actions} />
                             )}
                         >
                             {fileList.map(file => (
@@ -146,7 +161,7 @@ const UserPicturesManager = () => {
                     </ImgCrop>
                 </SortableContext>
             </DndContext>
-            <Modal open={previewOpen} title={"Preview"} footer={null} onCancel={() => setPreviewOpen(false)}>
+            <Modal open={previewOpen} title={"Preview"} footer={null} onCancel={(event) => setPreviewOpen(false)}>
                 <img alt="example" style={{ width: '100%' }} src={previewImage} />
             </Modal>
         </Card>

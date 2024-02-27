@@ -1,16 +1,16 @@
 .custom-upload-list .ant-upload,
 .custom-upload-list .ant-upload-list-item-container {
-    width: 200px !important;
+    width: 240px !important;
     /* Increase width */
-    height: 200px !important;
+    height: 290px !important;
     /* Increase height */
 }
 
-.custom-upload-list .ant-upload-list-item {
+/* .custom-upload-list .ant-upload-list-item {
     padding: 0px !important;
     border-radius: 8px !important;
     overflow: hidden !important;
-}
+} */
 
 .dropzone .ant-card-body,
 .custom-upload-list .ant-card-body {
@@ -22,10 +22,6 @@
     z-index: 1 !important;
 }
 
-.is-dragging a {
+.is-dragging div.ant-upload-list-item {
     pointer-events: none;
-}
-
-.draggable-item {
-    display: inline - block;
 }
