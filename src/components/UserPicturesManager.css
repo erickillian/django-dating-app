@@ -26,6 +26,6 @@
     pointer-events: none;
 }
 
-.hide-upload-area .ant-upload.ant-upload-select-picture-card {
-    display: none;
+.custom-upload-list.hide .ant-upload-select {
+    display: none !important;
 }

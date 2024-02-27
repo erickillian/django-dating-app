@@ -146,18 +146,18 @@ const UserPicturesManager = () => {
                     <ImgCrop rotationSlider={true} showGrid={true} aspect={1} modalWidth={1024} quality={1}>
                         <Upload
                             customRequest={handleUpload}
-                            className="custom-upload-list"
                             fileList={fileList}
                             onChange={handleChange}
                             listType="picture-card"
                             itemRender={(originNode, file, fileList, actions) => (
                                 <DraggableUploadListItem file={file} originNode={originNode} actions={actions} />
                             )}
+                            className={`custom-upload-list ${fileList.length < 8 ? '' : 'hide'}`}
                         >
                             {fileList.map(file => (
                                 file.status === 'uploading' && <Progress percent={upload_picture_progress} />
                             ))}
-                            {fileList.length >= 8 ? null : uploadButton}
+                            {uploadButton}
                         </Upload>
                     </ImgCrop>
                 </SortableContext>
