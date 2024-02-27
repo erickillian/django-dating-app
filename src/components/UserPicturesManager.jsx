@@ -45,7 +45,6 @@ const UserPicturesManager = () => {
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-    const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
 
     const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
@@ -72,7 +71,6 @@ const UserPicturesManager = () => {
         }
         setPreviewImage(file.url || file.preview);
         setPreviewOpen(true);
-        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
     };
 
     const handleChange = async ({ fileList: newFileList, file }) => {
@@ -133,7 +131,7 @@ const UserPicturesManager = () => {
                     </ImgCrop>
                 </SortableContext>
             </DndContext>
-            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
+            <Modal open={previewOpen} title={"Preview"} footer={null} onCancel={() => setPreviewOpen(false)}>
                 <img alt="example" style={{ width: '100%' }} src={previewImage} />
             </Modal>
         </Card>
