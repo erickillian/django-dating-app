@@ -169,3 +169,17 @@ export const updateUserPicturesOrder = (orderedPictureIds) => {
         }
     };
 };
+
+
+export const searchInterests = (query) => {
+    console.log("Searching", query)
+    return async dispatch => {
+        dispatch({ type: 'SEARCH_INTERESTS_START' });
+        try {
+            const response = await api.get(`user/interests/search/?query=${query}`);
+            dispatch({ type: 'SEARCH_INTERESTS_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'SEARCH_INTERESTS_ERROR', payload: error.response.data });
+        }
+    };
+}

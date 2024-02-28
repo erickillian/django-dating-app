@@ -16,6 +16,8 @@ const initialState = {
 
     user_upload_progress: 0,
     user_uploading: false,
+
+    interests_query: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -122,6 +124,10 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 user_pictures: action.payload,
+            };
+        case 'SEARCH_INTERESTS_SUCCESS':
+            return {
+                ...state, interests_query: action.payload,
             };
         default:
             return state;

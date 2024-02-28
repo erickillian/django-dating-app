@@ -10,8 +10,9 @@ from .serializers import (
     UserPictureSerializer,
     ProfilePictureSerializer,
     SelectedPicturesSerializer,
+    InterestSerializer,
 )
-from .models import UserProfile, UserPicture
+from .models import UserProfile, UserPicture, Interest
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .constants import *
@@ -201,3 +202,13 @@ class ProfilePictureSelectionView(APIView):
         )
 
         return Response(ProfilePictureSerializer(user_pictures, many=True).data)
+
+
+class InterestSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get("query", "")
+        interests = Interest.objects.filter(name__icontains=query)[:5]
+        serializer = InterestSerializer(interests, many=True)
+        return Response(serializer.data)
