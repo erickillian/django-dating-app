@@ -16,6 +16,7 @@ from .models import UserProfile, UserPicture, Interest
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .constants import *
+from django.db import transaction
 
 
 @api_view(["POST"])
@@ -87,18 +88,27 @@ class MyUserProfileView(APIView):
             )
 
     def put(self, request):
-        try:
-            serializer = MyUserProfileSerializer(
-                request.user, data=request.data, partial=True
-            )
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except UserProfile.DoesNotExist:
-            return Response(
-                {"detail": "User profile not found."}, status=status.HTTP_404_NOT_FOUND
-            )
+        with transaction.atomic():
+            try:
+                user = request.user
+
+                # Update other fields as before
+                serializer = MyUserProfileSerializer(
+                    user, data=request.data, partial=True
+                )
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                else:
+                    return Response(
+                        serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            except UserProfile.DoesNotExist:
+                return Response(
+                    {"detail": "User profile not found."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
 
 class PictureUploadView(APIView):

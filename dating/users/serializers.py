@@ -160,7 +160,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     age = serializers.IntegerField()
     full_name = serializers.CharField()
     height = serializers.IntegerField()
-    interests = InterestSerializer(many=True, required=False)
+    interests = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
     prompts = PromptResponseSerializer(many=True, required=False)
 
     class Meta:
@@ -183,6 +185,43 @@ class UserProfileSerializer(serializers.ModelSerializer):
             active=True, user_profile__id=obj.id
         ).order_by("order")[:MAX_ACTIVE_PICTURES]
         return UserPictureSerializer(pictures, many=True).data
+
+    def validate_interests(self, value):
+        if len(value) > MAX_INTERESTS:
+            print("THIS HAPPENED!", flush=True)
+            raise serializers.ValidationError(
+                f"You can have a maximum of {MAX_INTERESTS} interests."
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        # Handle the interests separately
+        interests_data = validated_data.pop("interests", None)
+
+        # Update the UserProfile instance with other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Handle updating interests here
+        if interests_data is not None:
+            # Clear existing interests or find a way to update them
+            instance.interests.clear()  # Assuming a ManyToMany relationship
+            for interest_name in interests_data:
+                interest_obj, created = Interest.objects.get_or_create(
+                    name=interest_name
+                )
+                instance.interests.add(interest_obj)
+
+        return instance
+
+    def to_representation(self, instance):
+        """
+        Convert the interest model instances to their names for representation.
+        """
+        ret = super().to_representation(instance)
+        ret["interests"] = [interest.name for interest in instance.interests.all()]
+        return ret
 
 
 class MyUserProfileSerializer(UserProfileSerializer):
