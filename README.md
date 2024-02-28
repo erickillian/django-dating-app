@@ -76,7 +76,7 @@ This will create 100 dummy ratings for the dummy users you added
 - [x] Improve UI of login page
 - [x] Add user registration page
 - [x] Implement Frontend to notify users of matches and likes (notification system)
-- [ ] Add drag and drop to re-order pictures on frontend
+- [x] Add drag and drop to re-order pictures on frontend
 - [ ] Add more profile options such as prompts and interests
 - [ ] Add profile completeness metric to unincentivise empty profiles
 - [ ] Write comprehensive unit tests for backend
