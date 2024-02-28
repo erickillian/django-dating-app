@@ -22,12 +22,14 @@ const UserInfoManager = () => {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.user_profile);
     const [userProfileState, setUserProfileState] = useState({});
+    const [changedFields, setChangedFields] = useState({});
     const [formKey, setFormKey] = useState(Date.now()); // Using Date.now() to generate a unique key
 
     useEffect(() => {
         if (user) {
             setUserProfileState(user);
             setFormKey(Date.now()); // Update key to force re-render
+            setChangedFields({}); // Reset changed fields when user data is loaded
         }
     }, [user]);
 
@@ -38,12 +40,22 @@ const UserInfoManager = () => {
             }
             return acc;
         }, {});
-        setUserProfileState(prevState => ({ ...prevState, ...changes }));
+        setChangedFields(changes);
     };
 
     const handleSubmit = () => {
-        dispatch(updateUserInfo(userProfileState));
-        message.success('Profile updated successfully');
+        // Filter out unchanged fields
+        const updates = Object.keys(changedFields).reduce((acc, key) => {
+            if (user[key] !== changedFields[key]) {
+                acc[key] = changedFields[key];
+            }
+            return acc;
+        }, {});
+
+        if (Object.keys(updates).length > 0) {
+            dispatch(updateUserInfo(updates));
+            message.success('Profile updated successfully');
+        }
     };
 
     return (
@@ -80,6 +92,7 @@ const UserInfoManager = () => {
 };
 
 export default UserInfoManager;
+
 
 // : field.type === 'interests' ? (
 //     <Select
