@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserInfo, updateUserInfo, fetchUserPictures } from '../actions/userActions';
-import ImageUpload from '../components/ImageUpload';
-import UserPictureComponent from '../components/EditUserPictureComponent';
 import UserProfileDisplay from '../components/UserProfileDisplay';
 
 const formFields = {

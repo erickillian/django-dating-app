@@ -29,6 +29,20 @@ class CustomUserManager(BaseUserManager):
         return user
 
 
+class Prompt(models.Model):
+    text = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.text
+
+
+class Interest(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class UserProfile(AbstractUser):
     # Remove the original username field
     username = None
@@ -74,6 +88,8 @@ class UserProfile(AbstractUser):
         unique=True,
     )
     generated_profile = models.BooleanField(default=False)
+
+    interests = models.ManyToManyField(Interest, blank=True, related_name="users")
 
     @property
     def num_likes(self):
@@ -143,6 +159,27 @@ class UserPicture(models.Model):
 
         # Save the image back to the same path
         rgb_img.save(self.image.path, format="JPEG", quality=95)
+
+
+class UserPromptResponse(models.Model):
+    user = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name="prompts",
+    )
+    prompt = models.ForeignKey(
+        Prompt, on_delete=models.CASCADE, related_name="user_responses"
+    )
+    response = models.TextField()
+
+    class Meta:
+        unique_together = ("user", "prompt")
+        verbose_name = "User Prompt Response"
+        verbose_name_plural = "User Prompt Responses"
+
+    def __str__(self):
+        # Truncate response for display
+        return f"{self.user} - {self.prompt.text[:50]}...: {self.response[:30]}..."
 
 
 class IpAddress(models.Model):

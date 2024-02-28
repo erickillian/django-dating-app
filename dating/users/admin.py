@@ -2,7 +2,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django import forms
-from .models import UserProfile, UserPicture, IpAddress
+from .models import (
+    UserProfile,
+    UserPicture,
+    IpAddress,
+    Prompt,
+    Interest,
+    UserPromptResponse,
+)
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -51,6 +58,7 @@ class UserProfileAdmin(BaseUserAdmin):
                     "sexual_orientation",
                     "location",
                     "height",
+                    "interests",
                 )
             },
         ),
@@ -62,4 +70,7 @@ class UserProfileAdmin(BaseUserAdmin):
 
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserPicture)
+admin.site.register(Prompt)
+admin.site.register(Interest)
+admin.site.register(UserPromptResponse)
 admin.site.register(IpAddress)

@@ -38,11 +38,19 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     restart: always
-  # mailhog:
-  #   image: mailhog/mailhog
-  #   ports:
-  #     - "8025:8025" # Web interface
-  #     - "1025:1025" # SMTP server
+  # npm:
+  #   image: node:latest
+  #   volumes:
+  #     - .:/app
+  #   working_dir: /app
+  #   command: npm install && npm run start
+  #   environment:
+  #     # Add environment variables to let the npm service know where to find the web service
+  #     WEB_SERVICE_HOST: web
+  #     WEB_SERVICE_PORT: 80
+  #   depends_on:
+  #     - web
+  #   restart: always
 
 volumes:
   redis:

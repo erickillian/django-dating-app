@@ -9,7 +9,14 @@ from ipware import get_client_ip
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
-from dating.users.models import UserProfile, UserPicture, IpAddress
+from dating.users.models import (
+    UserProfile,
+    UserPicture,
+    IpAddress,
+    Prompt,
+    Interest,
+    UserPromptResponse,
+)
 import operator
 from .constants import *
 
@@ -124,46 +131,50 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
         extra_kwargs = {"order": {"required": True}}
 
 
-class MyUserProfileSerializer(serializers.ModelSerializer):
-    pictures = serializers.SerializerMethodField()
+class PromptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prompt
+        fields = "__all__"
+
+
+class PromptResponseSerializer(serializers.ModelSerializer):
+    prompt = serializers.CharField(source="prompt.text")
 
     class Meta:
-        model = UserProfile
-        fields = [
-            "location",
-            "sexual_orientation",
-            "gender",
-            "age",
-            "full_name",
-            "height",
-            "id",
-            "pictures",
-            "birth_date",
-            "num_likes",
-            "num_matches",
-        ]
-        read_only_fields = ["id", "age"]
+        model = UserPromptResponse
+        fields = ["id", "prompt", "response"]
+        read_only_fields = ["id", "prompt"]
 
-    def get_pictures(self, obj):
-        pictures = UserPicture.objects.filter(
-            active=True, user_profile__id=obj.id
-        ).order_by("order")[:MAX_ACTIVE_PICTURES]
-        return UserPictureSerializer(pictures, many=True).data
+
+class InterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Interest
+        fields = "__all__"
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     pictures = serializers.SerializerMethodField()
+    # Add shared fields directly into the base class
+    sexual_orientation = serializers.CharField()
+    gender = serializers.CharField()
+    age = serializers.IntegerField()
+    full_name = serializers.CharField()
+    height = serializers.IntegerField()
+    interests = InterestSerializer(many=True, required=False)
+    prompts = PromptResponseSerializer(many=True, required=False)
 
     class Meta:
         model = UserProfile
         fields = [
+            "id",
+            "pictures",
             "sexual_orientation",
             "gender",
             "age",
             "full_name",
             "height",
-            "id",
-            "pictures",
+            "interests",
+            "prompts",
         ]
         read_only_fields = ["id", "age"]
 
@@ -172,6 +183,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             active=True, user_profile__id=obj.id
         ).order_by("order")[:MAX_ACTIVE_PICTURES]
         return UserPictureSerializer(pictures, many=True).data
+
+
+class MyUserProfileSerializer(UserProfileSerializer):
+    class Meta(UserProfileSerializer.Meta):
+        fields = UserProfileSerializer.Meta.fields + [
+            "location",
+            "birth_date",
+            "num_likes",
+            "num_matches",
+        ]
 
 
 class MinimalUserProfileSerializer(serializers.ModelSerializer):
