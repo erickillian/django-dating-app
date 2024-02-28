@@ -161,7 +161,6 @@ class ProfilePictureSelectionView(APIView):
 
     def put(self, request):
         selected_pictures_serializer = SelectedPicturesSerializer(data=request.data)
-        print(selected_pictures_serializer.initial_data)
 
         if selected_pictures_serializer.is_valid():
             selected_pictures = selected_pictures_serializer.validated_data.get(
@@ -192,7 +191,6 @@ class ProfilePictureSelectionView(APIView):
 
                 picture.order = order
                 picture.save()
-                print(picture, order)
                 order += 1
             except UserPicture.DoesNotExist:
                 return Response(
