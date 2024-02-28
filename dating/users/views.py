@@ -12,12 +12,8 @@ from .serializers import (
     SelectedPicturesSerializer,
 )
 from .models import UserProfile, UserPicture
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.decorators import action
-from django.db import transaction
-from django.db.models import F
 from .constants import *
 
 
