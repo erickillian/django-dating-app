@@ -30,7 +30,22 @@ class CustomUserManager(BaseUserManager):
 
 
 class Prompt(models.Model):
+    PROMPT_TYPES = [
+        ("Personal Insights & Reflections", "Personal Insights & Reflections"),
+        ("Passions & Interests", "Passions & Interests"),
+        ("Experiences & Adventures", "Experiences & Adventures"),
+        ("Favorites & Preferences", "Favorites & Preferences"),
+        ("Goals & Aspirations", "Goals & Aspirations"),
+        ("Values & Beliefs", "Values & Beliefs"),
+        ("Cultural & Social Insights", "Cultural & Social Insights"),
+    ]
+
     text = models.CharField(max_length=255, unique=True)
+    type = models.CharField(
+        max_length=32,
+        choices=PROMPT_TYPES,
+        default="Favorites & Preferences",
+    )
 
     def __str__(self):
         return self.text
