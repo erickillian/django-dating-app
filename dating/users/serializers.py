@@ -11,6 +11,7 @@ from rest_framework import serializers
 
 from dating.users.models import UserProfile, UserPicture, IpAddress
 import operator
+from .constants import *
 
 
 def validate_captcha(response, ip_address):
@@ -146,7 +147,7 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
     def get_pictures(self, obj):
         pictures = UserPicture.objects.filter(
             active=True, user_profile__id=obj.id
-        ).order_by("order")[:6]
+        ).order_by("order")[:MAX_ACTIVE_PICTURES]
         return UserPictureSerializer(pictures, many=True).data
 
 
@@ -169,7 +170,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_pictures(self, obj):
         pictures = UserPicture.objects.filter(
             active=True, user_profile__id=obj.id
-        ).order_by("order")[:6]
+        ).order_by("order")[:MAX_ACTIVE_PICTURES]
         return UserPictureSerializer(pictures, many=True).data
 
 

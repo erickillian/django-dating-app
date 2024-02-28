@@ -118,6 +118,11 @@ const userReducer = (state = initialState, action) => {
                     picture.id === action.payload ? { ...picture, loading: false } : picture
                 ),
             };
+        case 'UPDATE_USER_PICTURES_ORDER_SUCCESS':
+            return {
+                ...state,
+                user_pictures: action.payload,
+            };
         default:
             return state;
     }

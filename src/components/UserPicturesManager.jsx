@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Card, Modal, Upload, message } from 'antd';
 import { PlusOutlined, EyeOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
-import { fetchUserPictures, deleteUserPicture, uploadUserPicture } from '../actions/userActions';
+import { fetchUserPictures, deleteUserPicture, uploadUserPicture, updateUserPicturesOrder } from '../actions/userActions';
 import "./UserPicturesManager.css";
 
 // Drag and drop
@@ -23,15 +23,16 @@ const getBase64 = (file) =>
 
 const UserPicturesManager = () => {
     const dispatch = useDispatch();
-    const pictures = useSelector(state => state.user.user_pictures);
-    const pictures_loading = useSelector(state => state.user.pictures_loading);
-    const delete_picture_loading = useSelector(state => state.user.delete_picture_loading);
-    const upload_picture_progress = useSelector(state => state.user.user_upload_progress);
+    const {
+        user_pictures: pictures,
+        pictures_loading,
+        delete_picture_loading,
+        user_upload_progress: upload_picture_progress
+    } = useSelector(state => state.user);
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState([]);
-
     const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 20 } });
 
     useEffect(() => {
@@ -61,9 +62,14 @@ const UserPicturesManager = () => {
     };
 
     const handleChange = async ({ fileList: newFileList }) => {
-        if (newFileList.length > 6) {
+        if (newFileList.length > 6 && newFileList.length < 12) {
             // Prevent adding more than 6 pictures by removing the last added picture beyond the limit
-            message.error('You can only have up to 6 active pictures.');
+            message.warning('You can only have up to 6 active pictures.');
+            return;
+        }
+        if (newFileList.length == 12) {
+            // Prevent adding more than 6 pictures by removing the last added picture beyond the limit
+            message.error('You have reached the picture upload limit or 12 pictures.');
             return;
         }
         setFileList(newFileList);
@@ -81,12 +87,17 @@ const UserPicturesManager = () => {
 
     const onDragEnd = ({ active, over }) => {
         if (active.id !== over?.id) {
+
             setFileList((prev) => {
                 const activeIndex = prev.findIndex((i) => i.uid === active.id);
                 const overIndex = prev.findIndex((i) => i.uid === over?.id);
-                return arrayMove(prev, activeIndex, overIndex);
+                const newOrder = arrayMove(prev, activeIndex, overIndex);
+                const newOrderIdxs = newOrder.map((file) => file.uid);
+                dispatch(updateUserPicturesOrder(newOrderIdxs));
+                return newOrder;
             });
         }
+
     };
 
     const handleDownload = async (url, fileName) => {
@@ -135,15 +146,6 @@ const UserPicturesManager = () => {
             cursor: isDragging ? 'grabbing' : 'grab', // Change the cursor based on the dragging state
             zIndex: isDragging ? 10 : 1, // Adjust the zIndex based on the dragging state
             position: isDragging ? 'relative' : 'static', // Add this linez
-            opacity: isDragging ? 0.8 : 1, // Adjust the opacity based on the dragging state
-        };
-
-        const preview = (e) => {
-            handlePreview(file);
-        };
-
-        const remove = (e) => {
-            handleRemove(file);
         };
 
         return (
@@ -154,15 +156,20 @@ const UserPicturesManager = () => {
                         <img
                             alt={file.name}
                             src={file.url}
-                            style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                            style={{
+                                width: '100%',
+                                height: 'auto',
+                                objectFit: 'cover',
+                                opacity: file.active ? 1 : 0.5, // Adjust the opacity based on the dragging state
+                            }}
                             draggable={false}
-                            onClick={(e) => preview(e)}
+                            onClick={(e) => handlePreview(file)}
                         />
                     }
                     actions={[
-                        <EyeOutlined key="preview" onClick={(e) => preview(e)} />,
+                        <EyeOutlined key="preview" onClick={(e) => handlePreview(file)} />,
                         <DownloadOutlined key="download" onClick={() => handleDownload(file.url, file.name)} />,
-                        <DeleteOutlined key="delete" onClick={(e) => remove(e)} />,
+                        <DeleteOutlined key="delete" onClick={(e) => handleRemove(file)} />,
                     ]}
 
                 />
@@ -184,11 +191,8 @@ const UserPicturesManager = () => {
                             itemRender={(originNode, file, fileList, actions) => (
                                 <DraggableUploadListItem file={file} originNode={originNode} actions={actions} />
                             )}
-                            className={`custom-upload-list ${fileList.length < 8 ? '' : 'hide'}`}
+                            className={`custom-upload-list ${fileList.length < 12 ? '' : 'hide'}`}
                         >
-                            {/* {fileList.map(file => (
-                                file.status === 'uploading' && <Progress percent={upload_picture_progress} />
-                            ))} */}
                             {uploadButton}
                         </Upload>
                     </ImgCrop>

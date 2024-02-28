@@ -73,8 +73,6 @@ class UserProfile(AbstractUser):
         blank=False,
         unique=True,
     )
-    num_pictures = models.IntegerField(default=0)
-    num_active_pictures = models.IntegerField(default=0)
     generated_profile = models.BooleanField(default=False)
 
     @property
@@ -84,6 +82,10 @@ class UserProfile(AbstractUser):
     @property
     def num_matches(self):
         return self.matches_user_one.count() + self.matches_user_two.count()
+
+    @property
+    def num_pictures(self):
+        return self.profile_pictures.count()
 
     @property
     def age(self):

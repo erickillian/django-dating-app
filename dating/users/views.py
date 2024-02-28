@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from django.db import transaction
 from django.db.models import F
+from .constants import *
 
 
 @api_view(["POST"])
@@ -107,61 +108,28 @@ class PictureUploadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if request.user.num_pictures >= 10:
+        if request.user.num_pictures >= MAX_TOTAL_UPLOADED_PICTURES:
             return Response(
-                {"detail": "Cannot upload more than 10 pictures."},
+                {
+                    "detail": "Cannot upload more than MAX_TOTAL_UPLOADED_PICTURES pictures."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         serializer = UserPictureSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user_profile=request.user)
-            request.user.num_pictures = F("num_pictures") + 1
+            active = False
+            if request.user.num_pictures < MAX_ACTIVE_PICTURES:
+                active = True
+            serializer.save(
+                user_profile=request.user,
+                order=request.user.num_pictures + 1,
+                active=active,
+            )
+
             request.user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ProfilePictureSelectionView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request):
-        selected_pictures_serializer = SelectedPicturesSerializer(data=request.data)
-        if selected_pictures_serializer.is_valid():
-            selected_pictures = selected_pictures_serializer.validated_data.get(
-                "selected_pictures", []
-            )
-        else:
-            return Response(
-                selected_pictures_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if len(selected_pictures) > 6:
-            return Response(
-                {"detail": "Cannot select more than 6 pictures."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        UserPicture.objects.filter(user_profile=request.user).update(active=False)
-        order = 0
-        for picture_id in selected_pictures:
-            try:
-                picture = UserPicture.objects.get(
-                    id=picture_id, user_profile=request.user
-                )
-                picture.active = True
-                picture.order = order
-                order += 1
-                picture.save()
-            except UserPicture.DoesNotExist:
-                return Response(
-                    {"detail": f"Picture ID {picture_id} not found."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
-        request.user.num_active_pictures = len(selected_pictures)
-        request.user.save()
-        return Response({"detail": "Profile pictures updated."})
 
 
 class UserPicturesView(APIView):
@@ -178,7 +146,6 @@ class UserPicturesView(APIView):
         try:
             picture = UserPicture.objects.get(id=picture_id, user_profile=request.user)
             picture.delete()
-            request.user.num_pictures = F("num_pictures") - 1
             request.user.save()
             return Response(
                 {"detail": "Picture deleted."}, status=status.HTTP_204_NO_CONTENT
@@ -187,3 +154,56 @@ class UserPicturesView(APIView):
             return Response(
                 {"detail": "Picture not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class ProfilePictureSelectionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        selected_pictures_serializer = SelectedPicturesSerializer(data=request.data)
+        print(selected_pictures_serializer.initial_data)
+
+        if selected_pictures_serializer.is_valid():
+            selected_pictures = selected_pictures_serializer.validated_data.get(
+                "selected_pictures", []
+            )
+        else:
+            return Response(
+                selected_pictures_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if len(selected_pictures) > MAX_TOTAL_UPLOADED_PICTURES:
+            return Response(
+                {
+                    "detail": "Cannot select more than MAX_TOTAL_UPLOADED_PICTURES pictures."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        UserPicture.objects.filter(user_profile=request.user).update(active=False)
+        order = 0
+        for i, picture_id in enumerate(selected_pictures):
+            try:
+                picture = UserPicture.objects.get(
+                    id=picture_id, user_profile=request.user
+                )
+                if i < MAX_ACTIVE_PICTURES:
+                    picture.active = True
+
+                picture.order = order
+                picture.save()
+                print(picture, order)
+                order += 1
+            except UserPicture.DoesNotExist:
+                return Response(
+                    {"detail": f"Picture ID {picture_id} not found."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        request.user.save()
+
+        user_pictures = UserPicture.objects.filter(user_profile=request.user).order_by(
+            "-active", "order"
+        )
+
+        return Response(ProfilePictureSerializer(user_pictures, many=True).data)
