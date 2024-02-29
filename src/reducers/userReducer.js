@@ -18,6 +18,12 @@ const initialState = {
     user_uploading: false,
 
     interests_query: [],
+
+    prompt_categories_loading: false,
+    prompt_categories: [],
+
+    prompts_loading: {},
+    prompts: {},
 };
 
 const userReducer = (state = initialState, action) => {
@@ -129,6 +135,51 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state, interests_query: action.payload,
             };
+        case 'FETCH_PROMPTS_CATEGORIES_START':
+            return {
+                ...state, prompt_categories_loading: false,
+            };
+        case 'FETCH_PROMPTS_CATEGORIES_SUCCESS':
+            return {
+                ...state, prompt_categories: action.payload,
+            };
+        case 'FETCH_PROMPTS_CATEGORIES_END':
+            return {
+                ...state, prompt_categories_loading: false,
+            };
+        case 'FETCH_PROMPTS_START':
+            return {
+                ...state, prompts_loading: {
+                    ...state.prompts_loading,
+                    [action.payload.category]: true,
+                },
+            };
+        case 'FETCH_PROMPTS_SUCCESS':
+            return {
+                ...state,
+                prompts: {
+                    ...state.prompts,
+                    [action.payload.category]: action.payload.response,
+                },
+            };
+        case 'FETCH_PROMPTS_END':
+            return {
+                ...state, prompts_loading: {
+                    ...state.prompts_loading,
+                    [action.payload.category]: false,
+                },
+            };
+        case 'CREATE_USER_PROMPT_RESPONSE_START':
+            return { ...state, loading: true };
+        case 'CREATE_USER_PROMPT_RESPONSE_SUCCESS':
+            // Assuming you want to add the new response to the state
+            return {
+                ...state, user_profile: {
+                    ...state.user_profile, prompts: [...state.user_profile.prompts, action.payload]
+                }
+            };
+        case 'CREATE_USER_PROMPT_RESPONSE_ERROR':
+            return { ...state, loading: false, error: action.payload };
         default:
             return state;
     }

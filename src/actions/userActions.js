@@ -183,3 +183,54 @@ export const searchInterests = (query) => {
         }
     };
 }
+
+
+export const fetchPromptsCategories = () => {
+    return async dispatch => {
+        dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_START' });
+        try {
+            // Assuming `api` is your configured Axios instance or similar HTTP client
+            const response = await api.get('/user/prompts/categories/');
+            dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_ERROR', payload: error.response ? error.response.data : "An error occurred" });
+        } finally {
+            // Dispatch end action whether success or error
+            dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_END' });
+        }
+    };
+};
+
+
+
+export const fetchPrompts = (category) => {
+    return async dispatch => {
+        dispatch({ type: 'FETCH_PROMPTS_START', payload: { category: category } });
+        try {
+            // Assuming `api` is your configured Axios instance or similar HTTP client
+            const response = await api.get('/user/prompts/', { params: { category: category } });
+            dispatch({ type: 'FETCH_PROMPTS_SUCCESS', payload: {category: category, response: response.data} });
+        } catch (error) {
+            dispatch({ type: 'FETCH_PROMPTS_ERROR', payload: error.response ? error.response.data : "An error occurred" });
+        } finally {
+            // Dispatch end action whether success or error
+            dispatch({ type: 'FETCH_PROMPTS_END', payload: { category: category } });
+        }
+    };
+};
+
+
+export const createUserPromptResponse = (promptResponseData) => {
+    return async dispatch => {
+        dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_START' });
+        try {
+            const response = await api.post('user/prompts/create/', promptResponseData);
+            dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_SUCCESS', payload: response.data });
+            dispatch(fetchUserPromptResponses());
+        } catch (error) {
+            dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_ERROR', payload: error.response ? error.response.data : "An error occurred" });
+        } finally {
+            dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_END' });
+        }
+    };
+};

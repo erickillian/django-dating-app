@@ -53,7 +53,7 @@ const UserProfileDisplay = ({ user }) => {
                 {user.full_name}
             </Title>
             <Row gutter={[16, 16]} justify="center">
-                {user.pictures && (
+                {user.pictures.length > 0 && (
                     <Col xs={24} sm={24} md={24} lg={24}>
                         <UserPictureCard image={user.pictures[0].image} />
                     </Col>
@@ -107,9 +107,12 @@ const UserProfileDisplay = ({ user }) => {
                                     <Card>
                                         <Text strong>
                                             {IconComponent}
-                                            {` ${displayName}: `}
+                                            {` ${displayName} `}
                                         </Text>{" "}
-                                        {displayUserInfo(key, value)}
+                                        <br />
+                                        <Text>
+                                            {displayUserInfo(key, value)}
+                                        </Text>
                                     </Card>
                                 </List.Item>
                             );

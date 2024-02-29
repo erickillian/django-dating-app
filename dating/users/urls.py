@@ -27,4 +27,11 @@ urlpatterns = [
     ),
     path("pictures/<int:picture_id>/", UserPicturesView.as_view()),
     path("interests/search/", InterestSearchView.as_view(), name="interest-search"),
+    path("prompts/", PromptListView.as_view(), name="prompt-list"),
+    path("prompts/categories/", CategoryListView.as_view(), name="category-list"),
+    path(
+        "prompts/create/",
+        CreatePromptResponseView.as_view(),
+        name="user-prompt-response",
+    ),
 ]

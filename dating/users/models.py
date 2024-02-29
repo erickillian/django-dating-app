@@ -186,6 +186,7 @@ class UserPromptResponse(models.Model):
         Prompt, on_delete=models.CASCADE, related_name="user_responses"
     )
     response = models.TextField()
+    order = models.IntegerField(null=False, blank=False, default=0)
 
     class Meta:
         unique_together = ("user", "prompt")

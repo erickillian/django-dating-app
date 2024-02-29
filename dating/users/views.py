@@ -3,20 +3,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import (
-    LoginSerializer,
-    RegisterSerializer,
-    MyUserProfileSerializer,
-    UserPictureSerializer,
-    ProfilePictureSerializer,
-    SelectedPicturesSerializer,
-    InterestSerializer,
-)
-from .models import UserProfile, UserPicture, Interest
+from .serializers import *
+from .models import UserProfile, UserPicture, Interest, Prompt, UserPromptResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .constants import *
 from django.db import transaction
+from rest_framework import generics
 
 
 @api_view(["POST"])
@@ -222,3 +215,57 @@ class InterestSearchView(APIView):
         interests = Interest.objects.filter(name__icontains=query)[:5]
         serializer = InterestSerializer(interests, many=True)
         return Response(serializer.data)
+
+
+class PromptListView(generics.ListAPIView):
+    serializer_class = PromptSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned prompts to a given category,
+        by filtering against a `type` query parameter in the URL.
+        """
+        queryset = Prompt.objects.all()
+        category = self.request.query_params.get("category")
+        if category is not None:
+            queryset = queryset.filter(type=category)
+
+        return queryset
+
+
+class CategoryListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        prompt_types = [prompt_type[1] for prompt_type in Prompt.PROMPT_TYPES]
+        return Response(prompt_types)
+
+
+class UserPromptResponseView(generics.ListCreateAPIView):
+    serializer_class = PromptResponseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return responses for the currently authenticated user
+        return UserPromptResponse.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Automatically set the `user` to the current user on new responses
+        serializer.save(user=self.request.user)
+
+
+class CreatePromptResponseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = CreatePromptResponseSerializer(
+            data=request.data, context={"request": request}
+        )
+
+        if serializer.is_valid():
+            obj = serializer.save()
+            return Response(
+                PromptResponseSerializer(obj).data, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

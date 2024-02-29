@@ -146,6 +146,22 @@ class PromptResponseSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "prompt"]
 
 
+class CreatePromptResponseSerializer(serializers.ModelSerializer):
+    prompt = serializers.PrimaryKeyRelatedField(queryset=Prompt.objects.all())
+
+    class Meta:
+        model = UserPromptResponse
+        fields = ["prompt", "response"]
+
+    def create(self, validated_data):
+        # Prevent the user from creating a prompt if it already exists
+        user = self.context["request"].user
+        prompt = validated_data["prompt"]
+        if UserPromptResponse.objects.filter(user=user, prompt=prompt).exists():
+            raise serializers.ValidationError("User has already answered this prompt.")
+        return UserPromptResponse.objects.create(**validated_data, user=user)
+
+
 class InterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interest
