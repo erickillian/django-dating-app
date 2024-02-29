@@ -8,6 +8,14 @@ import {
     TeamOutlined,
     CalendarOutlined,
     ColumnHeightOutlined,
+    FlagOutlined,
+    MessageOutlined,
+    BriefcaseOutlined,
+    BookOutlined,
+    SearchOutlined,
+    EyeOutlined,
+    ScissorOutlined,
+    SkinOutlined,
 } from "@ant-design/icons";
 import UserPictureCard from "./UserPictureCard";
 import "./UserProfileDisplay.css";
@@ -33,6 +41,14 @@ const infoFieldMappings = {
     },
     age: { displayName: "Age", icon: <CalendarOutlined /> },
     height: { displayName: "Height", icon: <ColumnHeightOutlined /> },
+    languages: { displayName: "Languages", icon: <FlagOutlined /> },
+    nationalities: { displayName: "Nationalities", icon: <FlagOutlined /> },
+    occupation: { displayName: "Occupation", icon: <BookOutlined /> },
+    education: { displayName: "Education", icon: <BookOutlined /> },
+    looking_for: { displayName: "Looking For", icon: <SearchOutlined /> },
+    eye_color: { displayName: "Eye Color", icon: <EyeOutlined /> },
+    hair_color: { displayName: "Hair Color", icon: <ScissorOutlined /> },
+    ethnicity: { displayName: "Ethnicity", icon: <SkinOutlined /> },
 };
 
 const UserProfileDisplay = ({ user }) => {
@@ -52,6 +68,22 @@ const UserProfileDisplay = ({ user }) => {
         }
         return value || "Not Specified";
     };
+
+    const renderUserInterests = (interests) => (
+        <Row
+            gutter={[16, 16]}
+            justify="center"
+            style={{ marginBottom: "20px" }}
+        >
+            <Col span={24}>
+                <Card title="Interests">
+                    {user.interests.map((interest, index) => (
+                        <Tag key={index}>{interest.name || interest}</Tag>
+                    ))}
+                </Card>
+            </Col>
+        </Row>
+    );
 
     const renderUserInfo = () => (
         <Row
@@ -137,6 +169,9 @@ const UserProfileDisplay = ({ user }) => {
 
         // Render user info next
         elements.push(renderUserInfo());
+        if (user && user.interests && user.interests.length > 0) {
+            elements.push(renderUserInterests());
+        }
 
         // If there's at least one prompt, render the first prompt next
         if (prompts.length > 0) {
