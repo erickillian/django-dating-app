@@ -26,19 +26,19 @@ const ProfilePage = () => {
     } else {
         return (
             <>
-                <Row gutter={[16, 16]}>
-                    <Col s={24} m={24} l={24} xl={24}>
+                <Row gutter={[16, 16]} justify="center">
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <ProfileCompleteness
                             completeness={user.profile_completeness}
                         />
                     </Col>
-                    <Col s={24} m={24} l={24} xl={24}>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <UserPicturesManager />
                     </Col>
-                    <Col s={24} m={24} l={24} xl={24}>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <UserPromptsManager />
                     </Col>
-                    <Col s={24} m={24} l={24} xl={24}>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <Card title="Edit Profile" bordered={false}>
                             <UserInfoManager
                                 user={user}
