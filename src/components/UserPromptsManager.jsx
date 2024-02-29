@@ -26,6 +26,8 @@ const UserPromptsManager = () => {
     const prompts = useSelector((state) => state.user.prompts);
     const user = useSelector((state) => state.user.user_profile);
 
+    const MAX_PROMPTS = 4;
+
     // Fetch categories on mount if not already loaded
     useEffect(() => {
         if (promptCategories.length === 0) {
@@ -90,7 +92,7 @@ const UserPromptsManager = () => {
             );
             setPromptEditing(false);
             handleCancel(); // Close modal and reset after submission
-        } else if (myPrompts.length < 3) {
+        } else if (myPrompts.length < MAX_PROMPTS) {
             const data = {
                 prompt: activePrompt.id,
                 response: responseText,
@@ -100,7 +102,7 @@ const UserPromptsManager = () => {
             dispatch(createUserPromptResponse(data));
             handleCancel(); // Close modal and reset after submission
         } else {
-            alert("Maximum of 3 responses reached");
+            alert(`Maximum of ${MAX_PROMPTS} responses reached`);
         }
     };
 
@@ -185,7 +187,7 @@ const UserPromptsManager = () => {
         <Card title="Your Prompts">
             <Row gutter={[16, 16]}>
                 {myPrompts.map((prompt, index) => (
-                    <Col>
+                    <Col key={index}>
                         <Card
                             key={index}
                             title={prompt.prompt}
@@ -208,32 +210,37 @@ const UserPromptsManager = () => {
                         </Card>
                     </Col>
                 ))}
-                <Col>
-                    <Card
-                        onClick={showModal}
-                        hoverable
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                        }}
-                        onMouseDown={(e) => {
-                            e.currentTarget.style.backgroundColor = "#f0f0f0";
-                        }}
-                        onMouseUp={(e) => {
-                            e.currentTarget.style.backgroundColor = "#fff";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "#fff";
-                        }}
-                    >
-                        <PlusOutlined style={{ fontSize: "24px" }} />
-                        <span style={{ marginLeft: "8px" }}>Add Prompt</span>
-                    </Card>
-                </Col>
+                {myPrompts && myPrompts.length < MAX_PROMPTS && (
+                    <Col>
+                        <Card
+                            onClick={showModal}
+                            hoverable
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                            }}
+                            onMouseDown={(e) => {
+                                e.currentTarget.style.backgroundColor =
+                                    "#f0f0f0";
+                            }}
+                            onMouseUp={(e) => {
+                                e.currentTarget.style.backgroundColor = "#fff";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = "#fff";
+                            }}
+                        >
+                            <PlusOutlined style={{ fontSize: "24px" }} />
+                            <span style={{ marginLeft: "8px" }}>
+                                Add Prompt
+                            </span>
+                        </Card>
+                    </Col>
+                )}
             </Row>
             <Modal
                 title={promptEditing ? "Edit Prompt" : "Add Prompt"}

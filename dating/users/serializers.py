@@ -147,6 +147,14 @@ class PromptResponseSerializer(serializers.ModelSerializer):
         fields = ["id", "prompt", "response"]
         read_only_fields = ["id"]
 
+    def create(self, validated_data):
+        if validated_data["user"].prompts.count() >= MAX_PROMPT_RESPONSES:
+            raise serializers.ValidationError(
+                f"You can only have a maximum of {MAX_PROMPT_RESPONSES} prompts."
+            )
+
+        return UserPromptResponse.objects.create(**validated_data)
+
     def to_representation(self, instance):
         """
         Object instance -> Dict of primitive datatypes.
