@@ -155,9 +155,9 @@ class PromptResponseSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "prompt_id"]
 
     def create(self, validated_data):
-        if validated_data["user"].prompts.count() >= MAX_PROMPT_RESPONSES:
+        if validated_data["user"].prompts.count() >= MAX_PROMPTS:
             raise serializers.ValidationError(
-                f"You can only have a maximum of {MAX_PROMPT_RESPONSES} prompts."
+                f"You can only have a maximum of {MAX_PROMPTS} prompts."
             )
 
         return UserPromptResponse.objects.create(**validated_data)
@@ -180,11 +180,11 @@ class InterestSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     pictures = serializers.SerializerMethodField()
     # Add shared fields directly into the base class
-    sexual_orientation = serializers.CharField()
-    gender = serializers.CharField()
+    sexual_orientation = serializers.CharField(allow_blank=True)
+    gender = serializers.CharField(allow_blank=True)
     age = serializers.IntegerField()
-    full_name = serializers.CharField()
-    height = serializers.IntegerField()
+    full_name = serializers.CharField(allow_blank=True)
+    height = serializers.IntegerField(allow_null=True)
     interests = serializers.ListSerializer(
         child=serializers.CharField(), required=False
     )
@@ -232,10 +232,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             # Clear existing interests or find a way to update them
             instance.interests.clear()  # Assuming a ManyToMany relationship
             for interest_name in interests_data:
-                interest_obj, created = Interest.objects.get_or_create(
-                    name=interest_name
-                )
-                instance.interests.add(interest_obj)
+                try:
+                    interest_obj = Interest.objects.get(name=interest_name)
+                    instance.interests.add(interest_obj)
+                except:
+                    raise serializers.ValidationError(
+                        f"Interest {interest_name} does not exist."
+                    )
 
         return instance
 
@@ -249,12 +252,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class MyUserProfileSerializer(UserProfileSerializer):
+    birth_date = serializers.DateField(required=False, allow_null=True)
+
     class Meta(UserProfileSerializer.Meta):
         fields = UserProfileSerializer.Meta.fields + [
             "location",
             "birth_date",
             "num_likes",
             "num_matches",
+            "profile_completeness",
         ]
 
 

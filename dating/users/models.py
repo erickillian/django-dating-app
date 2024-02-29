@@ -11,6 +11,7 @@ import os
 from django.core.exceptions import ValidationError
 from datetime import date
 import uuid
+from .constants import *
 
 
 class CustomUserManager(BaseUserManager):
@@ -123,6 +124,14 @@ class UserProfile(AbstractUser):
         return self.profile_pictures.count()
 
     @property
+    def num_prompts(self):
+        return self.prompts.count()
+
+    @property
+    def num_interests(self):
+        return self.interests.count()
+
+    @property
     def age(self):
         if self.birth_date:
             today = date.today()
@@ -135,6 +144,34 @@ class UserProfile(AbstractUser):
                 )
             )
         return None
+
+    @property
+    def profile_completeness(self):
+        info_fields_weight = 0.4
+        pictures_weight = 0.3
+        prompts_weight = 0.2
+        interests_weight = 0.1
+
+        completeness = 0.0
+        info_fields = [
+            self.full_name,
+            self.birth_date,
+            self.height,
+            self.sexual_orientation,
+            self.gender,
+        ]
+
+        for field in info_fields:
+            if field:
+                completeness += info_fields_weight / len(info_fields)
+
+        completeness += pictures_weight * (
+            min(self.num_pictures, MAX_ACTIVE_PICTURES) / MAX_ACTIVE_PICTURES
+        )
+        completeness += prompts_weight * (self.num_prompts / MAX_PROMPTS)
+        completeness += interests_weight * (self.interests.count() / MAX_INTERESTS)
+
+        return round(completeness * 100)
 
     USERNAME_FIELD = "phone_number"
     REQUIRED_FIELDS = []

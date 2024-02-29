@@ -77,6 +77,21 @@ const UserInfoManager = () => {
             return acc;
         }, {});
 
+        if (updates.birth_date === "") {
+            updates.birth_date = null;
+        }
+
+        // Iterate over the properties and change any ones that are "Prefer not to say" to ""
+        for (const key in updates) {
+            if (updates[key] === "Prefer not to say") {
+                updates[key] = "";
+            }
+        }
+
+        if (updates.height === "") {
+            updates.height = null;
+        }
+
         if (Object.keys(updates).length > 0) {
             dispatch(updateUserInfo(updates));
             message.success("Profile updated successfully");

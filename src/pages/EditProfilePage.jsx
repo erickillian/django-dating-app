@@ -4,6 +4,7 @@ import { fetchUserInfo } from "../actions/userActions";
 import UserPicturesManager from "../components/UserPicturesManager";
 import UserInfoManager from "../components/UserInfoManager";
 import UserPromptsManager from "../components/UserPromptsManager";
+import ProfileCompleteness from "../components/ProfileCompleteness";
 import { Row, Col, Card } from "antd";
 
 const ProfilePage = () => {
@@ -18,25 +19,38 @@ const ProfilePage = () => {
         }
     }, [dispatch, user]);
 
-    return (
-        <Row gutter={[16, 16]}>
-            <Col s={24} m={24} l={24} xl={24}>
-                <UserPicturesManager />
-            </Col>
-            <Col s={24} m={24} l={24} xl={24}>
-                <UserPromptsManager />
-            </Col>
-            <Col s={24} m={24} l={24} xl={24}>
-                <Card title="Edit Profile" bordered={false}>
-                    <UserInfoManager
-                        user={user}
-                        loading={loading}
-                        error={error}
-                    />
-                </Card>
-            </Col>
-        </Row>
-    );
+    if (!user) {
+        return <div>Loading...</div>;
+    } else if (error) {
+        return <div>Error: {error}</div>;
+    } else {
+        return (
+            <>
+                <Row gutter={[16, 16]}>
+                    <Col s={24} m={24} l={24} xl={24}>
+                        <ProfileCompleteness
+                            completeness={user.profile_completeness}
+                        />
+                    </Col>
+                    <Col s={24} m={24} l={24} xl={24}>
+                        <UserPicturesManager />
+                    </Col>
+                    <Col s={24} m={24} l={24} xl={24}>
+                        <UserPromptsManager />
+                    </Col>
+                    <Col s={24} m={24} l={24} xl={24}>
+                        <Card title="Edit Profile" bordered={false}>
+                            <UserInfoManager
+                                user={user}
+                                loading={loading}
+                                error={error}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            </>
+        );
+    }
 };
 
 export default ProfilePage;
