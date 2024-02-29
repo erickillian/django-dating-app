@@ -252,6 +252,7 @@ class UserPromptResponseViewSet(ModelViewSet):
     queryset = UserPromptResponse.objects.all()
     serializer_class = PromptResponseSerializer
     permission_classes = [IsAuthenticated]
+    # http_method_names = ["post", "delete", "put", "patch"]
 
     def perform_create(self, serializer):
         # Ensure the user is set to the current user when creating a new instance

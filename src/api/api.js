@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 let errorCounter = 0;
-const ERROR_THRESHOLD = 3;
+const ERROR_THRESHOLD = 20;
 
 const onMultipleErrors = () => {
     // Dispatch the logoutUser action

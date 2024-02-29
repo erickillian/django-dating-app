@@ -30,6 +30,10 @@ urlpatterns = [
         "pictures/",
         UserPicturesView.as_view(),
     ),
+    path(
+        "pictures/<str:picture_id>/",
+        UserPicturesView.as_view(),
+    ),
     path("interests/search/", InterestSearchView.as_view(), name="interest-search"),
     path("prompts-list/", PromptListView.as_view(), name="prompt-list"),
     path("prompts-categories/", CategoryListView.as_view(), name="category-list"),

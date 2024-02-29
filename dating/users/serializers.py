@@ -132,20 +132,25 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
 
 
 class PromptSerializer(serializers.ModelSerializer):
+    prompt_id = serializers.UUIDField(source="id", read_only=True)
+    prompt = serializers.CharField(source="text")
+    category = serializers.CharField(source="type")
+
     class Meta:
         model = Prompt
-        fields = "__all__"
+        fields = ["prompt_id", "prompt", "category"]
 
 
 class PromptResponseSerializer(serializers.ModelSerializer):
     prompt = serializers.PrimaryKeyRelatedField(
         queryset=Prompt.objects.all(), write_only=True, required=False
     )
+    prompt_id = serializers.UUIDField(source="prompt.id", read_only=True)
 
     class Meta:
         model = UserPromptResponse
-        fields = ["id", "prompt", "response"]
-        read_only_fields = ["id"]
+        fields = ["id", "prompt", "response", "prompt_id"]
+        read_only_fields = ["id", "prompt_id"]
 
     def create(self, validated_data):
         if validated_data["user"].prompts.count() >= MAX_PROMPT_RESPONSES:

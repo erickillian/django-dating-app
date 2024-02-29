@@ -47,28 +47,22 @@ const UserPromptsManager = () => {
         }
     }, [openCategory]);
 
-    const showModal = () => {
-        if (openCategory === null) {
-            setOpenCategory(promptCategories[0]);
-        }
-
-        setIsCreatePromptVisible(true);
-        resetActivePrompt();
+    const resetActivePrompt = () => {
+        setActivePrompt({ ...activePrompt, prompt: null, prompt_id: null });
+        setResponseText("");
     };
 
-    const resetActivePrompt = () => {
-        setActivePrompt(null);
-        setResponseText("");
+    const handleGoBack = () => {
+        if (prompts[openCategory] === undefined) {
+            dispatch(fetchPrompts(openCategory));
+        }
+        resetActivePrompt();
     };
 
     const handleCancel = () => {
         setIsCreatePromptVisible(false);
         resetActivePrompt();
         setPromptEditing(false);
-    };
-
-    const selectPrompt = (prompt) => {
-        setActivePrompt(prompt);
     };
 
     const handlePromptDelete = (prompt) => {
@@ -82,10 +76,32 @@ const UserPromptsManager = () => {
         setIsCreatePromptVisible(true);
     };
 
+    const handlePromptCreate = () => {
+        if (openCategory === null) {
+            setOpenCategory(promptCategories[0]);
+        }
+
+        setIsCreatePromptVisible(true);
+        resetActivePrompt();
+    };
+
+    const handlePromptSelection = (prompt) => {
+        if (promptEditing) {
+            setActivePrompt({
+                ...activePrompt,
+                prompt: prompt.prompt,
+                prompt_id: prompt.prompt_id,
+            });
+        } else {
+            setActivePrompt(prompt);
+        }
+    };
+
     const submitResponse = () => {
         if (promptEditing) {
             dispatch(
                 editUserPromptResponse({
+                    prompt: activePrompt.prompt_id,
                     id: activePrompt.id,
                     response: responseText,
                 })
@@ -93,13 +109,13 @@ const UserPromptsManager = () => {
             setPromptEditing(false);
             handleCancel(); // Close modal and reset after submission
         } else if (myPrompts.length < MAX_PROMPTS) {
-            const data = {
-                prompt: activePrompt.id,
-                response: responseText,
-                order: myPrompts.length,
-            };
-
-            dispatch(createUserPromptResponse(data));
+            dispatch(
+                createUserPromptResponse({
+                    prompt: activePrompt.prompt_id,
+                    id: activePrompt.id,
+                    response: responseText,
+                })
+            );
             handleCancel(); // Close modal and reset after submission
         } else {
             alert(`Maximum of ${MAX_PROMPTS} responses reached`);
@@ -114,19 +130,19 @@ const UserPromptsManager = () => {
                 dataSource={prompts[category] || []}
                 renderItem={(item) => (
                     <List.Item
-                        key={item.id}
+                        key={item.prompt_id}
                         onClick={() => {
-                            selectPrompt(item);
+                            handlePromptSelection(item);
                         }}
                         style={{
                             cursor: "pointer",
                             backgroundColor:
-                                activePrompt?.id === item.id
+                                activePrompt?.prompt_id === item.prompt_id
                                     ? "#e6f7ff"
                                     : "transparent",
                         }}
                     >
-                        {item.text}
+                        {item.prompt}
                     </List.Item>
                 )}
             />
@@ -154,7 +170,7 @@ const UserPromptsManager = () => {
 
     const renderResponseInput = () => (
         <div>
-            <h3>{activePrompt?.text}</h3>
+            <h3>{activePrompt?.prompt}</h3>
             <Input.TextArea
                 rows={4}
                 value={responseText}
@@ -170,14 +186,13 @@ const UserPromptsManager = () => {
             >
                 <Button
                     onClick={() => {
-                        resetActivePrompt();
-                        setActivePrompt(null);
+                        handleGoBack();
                     }}
                 >
-                    Back
+                    {promptEditing ? "Change Prompt" : "Back"}
                 </Button>
                 <Button type="primary" onClick={submitResponse}>
-                    {promptEditing ? "Change Answer" : "Add Prompt"}
+                    {promptEditing ? "Update" : "Submit"}
                 </Button>
             </div>
         </div>
@@ -213,7 +228,9 @@ const UserPromptsManager = () => {
                 {myPrompts && myPrompts.length < MAX_PROMPTS && (
                     <Col>
                         <Card
-                            onClick={showModal}
+                            onClick={() => {
+                                handlePromptCreate();
+                            }}
                             hoverable
                             style={{
                                 width: "100%",
@@ -249,7 +266,9 @@ const UserPromptsManager = () => {
                 footer={null}
                 width={800}
             >
-                {activePrompt ? renderResponseInput() : renderPromptSelection()}
+                {activePrompt && activePrompt.prompt_id
+                    ? renderResponseInput()
+                    : renderPromptSelection()}
             </Modal>
         </Card>
     );
