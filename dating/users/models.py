@@ -141,13 +141,6 @@ class UserProfile(AbstractUser):
         max_length=40, blank=True, help_text="Highest level of education achieved"
     )
 
-    profile_visibility = models.CharField(
-        max_length=10,
-        choices=[("Public", "Public"), ("Private", "Private")],
-        default="Public",
-        help_text="Profile visibility settings",
-    )
-
     looking_for = models.CharField(
         max_length=50,
         blank=True,
@@ -207,6 +200,13 @@ class UserProfile(AbstractUser):
             ("Prefer not to say", "Prefer not to say"),
             ("Not applicable", "Not applicable"),
         ],
+    )
+
+    profile_visibility = models.CharField(
+        max_length=10,
+        choices=[("Public", "Public"), ("Private", "Private")],
+        default="Public",
+        help_text="Profile visibility settings",
     )
 
     @property

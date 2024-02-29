@@ -215,6 +215,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "languages",
             "nationalities",
             "prompts",
+            "occupation",
+            "education",
+            "looking_for",
+            "eye_color",
+            "hair_color",
+            "ethnicity",
         ]
         read_only_fields = ["id", "age"]
 
