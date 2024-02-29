@@ -11,11 +11,11 @@ from .views import (
 
 urlpatterns = [
     path("likes/", LikeList.as_view(), name="like-list"),
-    path("likes/<int:pk>/", LikeDetail.as_view(), name="like-detail"),
+    path("likes/<str:pk>/", LikeDetail.as_view(), name="like-detail"),
     path("matches/", MatchList.as_view(), name="match-list"),
-    path("matches/<int:pk>/", MatchDetail.as_view(), name="match-detail"),
+    path("matches/<str:pk>/", MatchDetail.as_view(), name="match-detail"),
     path(
-        "matches/<int:match_id>/messages",  # Updated parameter name
+        "matches/<str:match_id>/messages",  # Updated parameter name
         MatchMessageList.as_view(),
         name="match-messages",
     ),

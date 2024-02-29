@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Rating, Match, Message
+from dating.users.models import UserProfile
 from dating.users.serializers import UserProfileSerializer, BasicUserInfoSerializer
 from django.contrib.auth import get_user_model
 
@@ -36,8 +37,10 @@ class MatchSerializer(serializers.ModelSerializer):
 
 
 class RateSerializer(serializers.Serializer):
-    rated_user_id = serializers.IntegerField()
-    action = serializers.ChoiceField(choices=["like", "dislike"])
+    rated_user_id = serializers.PrimaryKeyRelatedField(
+        queryset=UserProfile.objects.all(), write_only=True, required=True
+    )
+    action = serializers.ChoiceField(choices=["like", "dislike"], required=True)
 
 
 class MessageSerializer(serializers.ModelSerializer):

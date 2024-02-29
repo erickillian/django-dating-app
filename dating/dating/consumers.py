@@ -18,12 +18,13 @@ def send_notification(user_id, message):
     """
 
     channel_layer = get_channel_layer()
-
-    group_name = f"{user_id}"
+    user_id_str = str(user_id).replace("-", "_")
+    group_name = f"{user_id_str}"
     notification = {
         "type": "new_notification",
         "message": message,
     }
+    print(f"Sending notification to {group_name}", flush=True)
     async_to_sync(channel_layer.group_send)(group_name, notification)
 
 
@@ -36,8 +37,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             # Reject the connection
             await self.close()
         else:
-            user_id = str(self.scope["user"].id)
-            self.user_group_name = user_id
+            user_id = str(self.scope["user"].id).replace("-", "_")
+            self.user_group_name = str(self.scope["user"].id).replace("-", "_")
 
             # Check if the user already has an active connection
             if self.active_connections.get(user_id):
@@ -52,6 +53,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
             # Accept the connection
             await self.accept()
+            print(f"Created connection with groupname {self.user_group_name}")
 
     async def disconnect(self, close_code):
         # Check if the user_group_name attribute is set
@@ -80,7 +82,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 class MessageConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.match_id = self.scope["url_route"]["kwargs"]["match_id"]
-        self.match_group_name = f"match_{self.match_id}"
+        self.match_group_name = str(self.match_id).replace("-", "_")
 
         # Check if user is part of the match
         if await self.is_user_in_match(self.scope["user"], self.match_id):
@@ -115,7 +117,7 @@ class MessageConsumer(AsyncWebsocketConsumer):
                 {
                     "type": "chat_message",
                     "message": message,
-                    "user": self.scope["user"].id,
+                    "user": str(self.scope["user"].id),
                 },
             )
 

@@ -5,11 +5,11 @@ import UserProfileDisplay from "./UserProfileDisplay";
 import { Link } from "react-router-dom";
 
 const NotificationComponent = () => {
-    const [webSocket, setWebSocket] = useState(null);
     const [notificationsQueue, setNotificationsQueue] = useState([]);
     const [matchNotification, setMatchNotification] = useState(null);
     const isAuthenticated = useSelector((state) => state.user.token !== null);
     const userToken = useSelector((state) => state.user.token);
+    let ws = null;
 
     const handleLikeNotification = (user, num_likes) => {
         notification.open({
@@ -36,41 +36,35 @@ const NotificationComponent = () => {
         handleMatchModalCancel();
     };
 
-    useEffect(() => {
-        let ws;
+    const connectWebSocket = () => {
+        document.cookie = "Authorization=" + userToken + "; path=/";
+        ws = new WebSocket("ws://localhost/ws/dating/");
 
-        const connectWebSocket = () => {
-            document.cookie = "Authorization=" + userToken + "; path=/";
-            ws = new WebSocket("ws://localhost/ws/dating/");
-
-            ws.onopen = () => {};
-
-            ws.onmessage = (e) => {
-                const message = JSON.parse(e.data);
-                if (message.type === "like") {
-                    handleLikeNotification(message.user, message.num_likes);
-                } else if (message.type === "match") {
-                    handleMatchNotification(message.user, message.match_id);
-                }
-            };
-
-            ws.onclose = () => {
-                setTimeout(() => {
-                    connectWebSocket();
-                }, 3000);
-            };
+        ws.onopen = () => {
+            console.log("WebSocket connected");
         };
 
-        if (isAuthenticated && !webSocket) {
-            connectWebSocket();
-        }
-
-        return () => {
-            if (ws) {
-                ws.close();
+        ws.onmessage = (e) => {
+            const message = JSON.parse(e.data);
+            if (message.type === "like") {
+                handleLikeNotification(message.user, message.num_likes);
+            } else if (message.type === "match") {
+                handleMatchNotification(message.user, message.match_id);
             }
         };
-    }, [isAuthenticated, userToken, webSocket]);
+
+        ws.onclose = () => {
+            console.log("WebSocket closed");
+            setTimeout(() => {
+                connectWebSocket();
+            }, 3000);
+        };
+    };
+
+    useEffect(() => {
+        console.log("This should get called once");
+        connectWebSocket();
+    }, [isAuthenticated, userToken]);
 
     const handleMatchModalCancel = () => {
         setMatchNotification(null);
@@ -87,7 +81,7 @@ const NotificationComponent = () => {
                 >
                     <UserProfileDisplay user={matchNotification.user} />
                     <Link
-                        to={`/match/${matchNotification.match_id}`}
+                        to={`/matches/${matchNotification.match_id}`}
                         onClick={handleMatchLinkClick}
                     >
                         View Match

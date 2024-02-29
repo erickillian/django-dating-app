@@ -54,7 +54,12 @@ const UserProfileDisplay = ({ user }) => {
     };
 
     const renderUserInfo = () => (
-        <Row gutter={[16, 16]} justify="center" style={{ marginTop: 16 }}>
+        <Row
+            gutter={[16, 16]}
+            justify="center"
+            style={{ marginTop: 16 }}
+            key="user-info"
+        >
             <Col span={24}>
                 <List
                     grid={{ gutter: 16, column: 4 }}
@@ -85,7 +90,12 @@ const UserProfileDisplay = ({ user }) => {
     );
 
     const renderPicture = (picture, index) => (
-        <Row gutter={[16, 16]} justify="center" style={{ marginTop: 16 }}>
+        <Row
+            gutter={[16, 16]}
+            justify="center"
+            style={{ marginTop: 16 }}
+            key={`picture-${index}`}
+        >
             <Col key={index} xs={24} sm={24} md={24} lg={24}>
                 <UserPictureCard image={picture.image} />
             </Col>
@@ -93,7 +103,12 @@ const UserProfileDisplay = ({ user }) => {
     );
 
     const renderPrompt = (prompt, index) => (
-        <Row gutter={[16, 16]} justify="center" style={{ marginTop: 16 }}>
+        <Row
+            gutter={[16, 16]}
+            justify="center"
+            style={{ marginTop: 16 }}
+            key={`prompt-${index}`}
+        >
             <Col key={index} span={24}>
                 <Card
                     title={

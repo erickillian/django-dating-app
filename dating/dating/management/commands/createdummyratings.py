@@ -38,7 +38,7 @@ class Command(BaseCommand):
             potential_matches = all_users.filter(get_potential_matches_filter(rater))
             if potential_matches:
                 rated = choice(potential_matches)
-                action = choice(["like", "dislike"])
+                action = choice(["like"])  # choice(["like", "dislike"])
 
                 created_match = handle_rate(action, rater, rated)
                 if created_match:

@@ -140,12 +140,13 @@ def handle_rate(action, rater, rated):
 
     if matched:
         m = Match.objects.create(user_one=rater, user_two=rated)
+
         send_notification(
             rated.id,
             {
                 "type": "match",
                 "user": UserProfileSerializer(rater).data,
-                "match_id": m.id,
+                "match_id": str(m.id),
             },
         )
         send_notification(
@@ -153,7 +154,7 @@ def handle_rate(action, rater, rated):
             {
                 "type": "match",
                 "user": UserProfileSerializer(rated).data,
-                "match_id": m.id,
+                "match_id": str(m.id),
             },
         )
     else:
@@ -175,18 +176,13 @@ class RateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        print(request.data, flush=True)
         serializer = RateSerializer(data=request.data)
         if serializer.is_valid():
-            rated_user_id = serializer.validated_data.get("rated_user_id")
+            rated_user = serializer.validated_data.get("rated_user_id")
             action = serializer.validated_data.get("action")
 
-            try:
-                rated_user = UserProfile.objects.get(id=rated_user_id)
-                handle_rate(action, request.user, rated_user)
-                return Response({"message": "Successfully rated user"})
-            except UserProfile.DoesNotExist:
-                return Response(
-                    {"message": "User not found"}, status=status.HTTP_404_NOT_FOUND
-                )
+            handle_rate(action, request.user, rated_user)
+            return Response({"message": "Successfully rated user"})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
