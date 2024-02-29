@@ -10,6 +10,8 @@ from rest_framework.views import APIView
 from .constants import *
 from django.db import transaction
 from rest_framework import generics
+from rest_framework.generics import CreateAPIView, DestroyAPIView, UpdateAPIView
+from rest_framework.viewsets import ModelViewSet
 
 
 @api_view(["POST"])
@@ -242,30 +244,30 @@ class CategoryListView(APIView):
         return Response(prompt_types)
 
 
-class UserPromptResponseView(generics.ListCreateAPIView):
+class UserPromptResponseViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user prompt responses.
+    """
+
+    queryset = UserPromptResponse.objects.all()
     serializer_class = PromptResponseSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        # Return responses for the currently authenticated user
-        return UserPromptResponse.objects.filter(user=self.request.user)
-
     def perform_create(self, serializer):
-        # Automatically set the `user` to the current user on new responses
+        # Ensure the user is set to the current user when creating a new instance
         serializer.save(user=self.request.user)
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = UserPromptResponse.objects.all()
+        user = self.request.user
+        if user is not None:
+            queryset = queryset.filter(user=user)
+        return queryset
 
-class CreatePromptResponseView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        serializer = CreatePromptResponseSerializer(
-            data=request.data, context={"request": request}
-        )
-
-        if serializer.is_valid():
-            obj = serializer.save()
-            return Response(
-                PromptResponseSerializer(obj).data, status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_destroy(self, instance):
+        # Custom deletion logic, e.g., soft delete
+        instance.delete()

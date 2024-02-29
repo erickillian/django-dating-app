@@ -24,6 +24,12 @@ const initialState = {
 
     prompts_loading: {},
     prompts: {},
+
+    delete_prompt_loading: false,
+    delete_prompt_error: null,
+
+    edit_prompt_loading: false,
+    edit_prompt_error: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -172,7 +178,6 @@ const userReducer = (state = initialState, action) => {
         case 'CREATE_USER_PROMPT_RESPONSE_START':
             return { ...state, loading: true };
         case 'CREATE_USER_PROMPT_RESPONSE_SUCCESS':
-            // Assuming you want to add the new response to the state
             return {
                 ...state, user_profile: {
                     ...state.user_profile, prompts: [...state.user_profile.prompts, action.payload]
@@ -180,6 +185,30 @@ const userReducer = (state = initialState, action) => {
             };
         case 'CREATE_USER_PROMPT_RESPONSE_ERROR':
             return { ...state, loading: false, error: action.payload };
+        case 'DELETE_USER_PROMPT_RESPONSE_START':
+            return { ...state, delete_prompt_loading: true, delete_prompt_error: null };
+        case 'DELETE_USER_PROMPT_RESPONSE_SUCCESS':
+            return {
+                ...state, user_profile: {
+                    ...state.user_profile, prompts: state.user_profile.prompts.filter(prompt => prompt.id !== action.payload)
+                }
+            };
+        case 'DELETE_USER_PROMPT_RESPONSE_ERROR':
+            return { ...state, delete_prompt_error: action.payload };
+        case 'DELETE_USER_PROMPT_RESPONSE_END':
+            return { ...state, delete_prompt_loading: false };
+        case 'EDIT_USER_PROMPT_RESPONSE_START':
+            return { ...state, edit_prompt_loading: true, edit_prompt_error: null };
+        case 'EDIT_USER_PROMPT_RESPONSE_SUCCESS':
+            return {
+                ...state, user_profile: {
+                    ...state.user_profile, prompts: state.user_profile.prompts.map(prompt => prompt.id === action.payload.id ? action.payload : prompt)
+                }
+            };
+        case 'EDIT_USER_PROMPT_RESPONSE_ERROR':
+            return { ...state, edit_prompt_error: action.payload };
+        case 'EDIT_USER_PROMPT_RESPONSE_END':
+            return { ...state, edit_prompt_loading: false };
         default:
             return state;
     }

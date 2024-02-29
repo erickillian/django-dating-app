@@ -138,28 +138,22 @@ class PromptSerializer(serializers.ModelSerializer):
 
 
 class PromptResponseSerializer(serializers.ModelSerializer):
-    prompt = serializers.CharField(source="prompt.text")
+    prompt = serializers.PrimaryKeyRelatedField(
+        queryset=Prompt.objects.all(), write_only=True, required=False
+    )
 
     class Meta:
         model = UserPromptResponse
         fields = ["id", "prompt", "response"]
-        read_only_fields = ["id", "prompt"]
+        read_only_fields = ["id"]
 
-
-class CreatePromptResponseSerializer(serializers.ModelSerializer):
-    prompt = serializers.PrimaryKeyRelatedField(queryset=Prompt.objects.all())
-
-    class Meta:
-        model = UserPromptResponse
-        fields = ["prompt", "response"]
-
-    def create(self, validated_data):
-        # Prevent the user from creating a prompt if it already exists
-        user = self.context["request"].user
-        prompt = validated_data["prompt"]
-        if UserPromptResponse.objects.filter(user=user, prompt=prompt).exists():
-            raise serializers.ValidationError("User has already answered this prompt.")
-        return UserPromptResponse.objects.create(**validated_data, user=user)
+    def to_representation(self, instance):
+        """
+        Object instance -> Dict of primitive datatypes.
+        """
+        ret = super().to_representation(instance)
+        ret["prompt"] = instance.prompt.text
+        return ret
 
 
 class InterestSerializer(serializers.ModelSerializer):
@@ -204,7 +198,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def validate_interests(self, value):
         if len(value) > MAX_INTERESTS:
-            print("THIS HAPPENED!", flush=True)
             raise serializers.ValidationError(
                 f"You can have a maximum of {MAX_INTERESTS} interests."
             )
@@ -279,4 +272,6 @@ class BasicUserInfoSerializer(serializers.ModelSerializer):
 
 
 class SelectedPicturesSerializer(serializers.Serializer):
-    selected_pictures = serializers.ListField(child=serializers.IntegerField())
+    selected_pictures = serializers.ListField(
+        child=serializers.UUIDField(format="hex_verbose")
+    )

@@ -10,6 +10,7 @@ from PIL import Image
 import os
 from django.core.exceptions import ValidationError
 from datetime import date
+import uuid
 
 
 class CustomUserManager(BaseUserManager):
@@ -40,6 +41,7 @@ class Prompt(models.Model):
         ("Cultural & Social Insights", "Cultural & Social Insights"),
     ]
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     text = models.CharField(max_length=255, unique=True)
     type = models.CharField(
         max_length=32,
@@ -53,6 +55,7 @@ class Prompt(models.Model):
 
 class Interest(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
@@ -65,6 +68,7 @@ class UserProfile(AbstractUser):
     last_name = None
     email = None
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=50, blank=True)
 
     # Personal Information
@@ -150,6 +154,7 @@ def validate_file_extension(value):
 
 
 class UserPicture(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_profile = models.ForeignKey(
         UserProfile, related_name="profile_pictures", on_delete=models.CASCADE
     )
@@ -177,6 +182,7 @@ class UserPicture(models.Model):
 
 
 class UserPromptResponse(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         UserProfile,
         on_delete=models.CASCADE,
@@ -199,6 +205,7 @@ class UserPromptResponse(models.Model):
 
 
 class IpAddress(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         UserProfile, related_name="user_ip_addresses", on_delete=models.CASCADE
     )

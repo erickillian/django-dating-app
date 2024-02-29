@@ -190,7 +190,7 @@ export const fetchPromptsCategories = () => {
         dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_START' });
         try {
             // Assuming `api` is your configured Axios instance or similar HTTP client
-            const response = await api.get('/user/prompts/categories/');
+            const response = await api.get('/user/prompts-categories/');
             dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_SUCCESS', payload: response.data });
         } catch (error) {
             dispatch({ type: 'FETCH_PROMPTS_CATEGORIES_ERROR', payload: error.response ? error.response.data : "An error occurred" });
@@ -204,11 +204,12 @@ export const fetchPromptsCategories = () => {
 
 
 export const fetchPrompts = (category) => {
+    console.log("Fetching prompts", category)
     return async dispatch => {
         dispatch({ type: 'FETCH_PROMPTS_START', payload: { category: category } });
         try {
             // Assuming `api` is your configured Axios instance or similar HTTP client
-            const response = await api.get('/user/prompts/', { params: { category: category } });
+            const response = await api.get('/user/prompts-list/', { params: { category: category } });
             dispatch({ type: 'FETCH_PROMPTS_SUCCESS', payload: {category: category, response: response.data} });
         } catch (error) {
             dispatch({ type: 'FETCH_PROMPTS_ERROR', payload: error.response ? error.response.data : "An error occurred" });
@@ -224,13 +225,41 @@ export const createUserPromptResponse = (promptResponseData) => {
     return async dispatch => {
         dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_START' });
         try {
-            const response = await api.post('user/prompts/create/', promptResponseData);
+            const response = await api.post('user/prompts/', promptResponseData);
             dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_SUCCESS', payload: response.data });
-            dispatch(fetchUserPromptResponses());
         } catch (error) {
             dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_ERROR', payload: error.response ? error.response.data : "An error occurred" });
         } finally {
             dispatch({ type: 'CREATE_USER_PROMPT_RESPONSE_END' });
+        }
+    };
+};
+
+export const deleteUserPromptResponse = (prompt) => {
+    console.log("PROMPT: ", prompt)
+    return async dispatch => {
+        dispatch({ type: 'DELETE_USER_PROMPT_RESPONSE_START' });
+        try {
+            await api.delete(`user/prompts/${prompt.id}/` );
+            dispatch({ type: 'DELETE_USER_PROMPT_RESPONSE_SUCCESS', payload: prompt.id });
+        } catch (error) {
+            dispatch({ type: 'DELETE_USER_PROMPT_RESPONSE_ERROR', payload: error.response ? error.response.data : "An error occurred" });
+        } finally {
+            dispatch({ type: 'DELETE_USER_PROMPT_RESPONSE_END' });
+        }
+    };
+};
+
+export const editUserPromptResponse = (prompt) => {
+    return async dispatch => {
+        dispatch({ type: 'EDIT_USER_PROMPT_RESPONSE_START' });
+        try {
+            const response = await api.put(`user/prompts/${prompt.id}/`, prompt);
+            dispatch({ type: 'EDIT_USER_PROMPT_RESPONSE_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'EDIT_USER_PROMPT_RESPONSE_ERROR', payload: error.response ? error.response.data : "An error occurred" });
+        } finally {
+            dispatch({ type: 'EDIT_USER_PROMPT_RESPONSE_END' });
         }
     };
 };

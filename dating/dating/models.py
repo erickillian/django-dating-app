@@ -1,9 +1,11 @@
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
+import uuid
 
 
 class Rating(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     RATING_CHOICES = [
         ("like", "Like"),
         ("dislike", "Dislike"),
@@ -28,6 +30,7 @@ class Rating(models.Model):
 
 
 class Match(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_one = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="matches_user_one",
@@ -49,6 +52,7 @@ class Match(models.Model):
 
 
 class Message(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="sender", on_delete=models.CASCADE
     )

@@ -34,7 +34,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         # Check if user is authenticated
         if self.scope["user"].is_anonymous:
             # Reject the connection
-            print("Rejected connection", flush=True)
             await self.close()
         else:
             user_id = str(self.scope["user"].id)
@@ -75,7 +74,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     # Handler for new match notifications
     async def new_notification(self, event):
         # Send the actual WebSocket message to the client
-        print(event["message"], flush=True)
         await self.send(text_data=json.dumps(event["message"]))
 
 

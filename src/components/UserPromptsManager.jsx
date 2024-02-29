@@ -6,16 +6,18 @@ import {
     fetchPrompts,
     fetchPromptsCategories,
     createUserPromptResponse,
+    deleteUserPromptResponse,
+    editUserPromptResponse,
 } from "../actions/userActions";
 
 const UserPromptsManager = () => {
     const dispatch = useDispatch();
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isCreatePromptVisible, setIsCreatePromptVisible] = useState(false);
     const [activePrompt, setActivePrompt] = useState(null);
     const [responseText, setResponseText] = useState("");
-    const [responses, setResponses] = useState([]);
     const [myPrompts, setMyPrompts] = useState([]);
     const [openCategory, setOpenCategory] = useState(null);
+    const [promptEditing, setPromptEditing] = useState(false);
 
     const promptsLoading = useSelector((state) => state.user.prompts_loading);
     const promptCategories = useSelector(
@@ -38,14 +40,17 @@ const UserPromptsManager = () => {
     }, [user]);
 
     useEffect(() => {
-        if (prompts[openCategory] === undefined) {
+        if (openCategory !== null && prompts[openCategory] === undefined) {
             dispatch(fetchPrompts(openCategory));
         }
     }, [openCategory]);
 
     const showModal = () => {
-        setOpenCategory(promptCategories[0]);
-        setIsModalVisible(true);
+        if (openCategory === null) {
+            setOpenCategory(promptCategories[0]);
+        }
+
+        setIsCreatePromptVisible(true);
         resetActivePrompt();
     };
 
@@ -55,8 +60,9 @@ const UserPromptsManager = () => {
     };
 
     const handleCancel = () => {
-        setIsModalVisible(false);
+        setIsCreatePromptVisible(false);
         resetActivePrompt();
+        setPromptEditing(false);
     };
 
     const selectPrompt = (prompt) => {
@@ -64,11 +70,27 @@ const UserPromptsManager = () => {
     };
 
     const handlePromptDelete = (prompt) => {
-        console.log(prompt);
+        dispatch(deleteUserPromptResponse(prompt));
+    };
+
+    const handlePromptEdit = (prompt) => {
+        setPromptEditing(true);
+        setActivePrompt(prompt);
+        setResponseText(prompt.response);
+        setIsCreatePromptVisible(true);
     };
 
     const submitResponse = () => {
-        if (myPrompts.length < 3) {
+        if (promptEditing) {
+            dispatch(
+                editUserPromptResponse({
+                    id: activePrompt.id,
+                    response: responseText,
+                })
+            );
+            setPromptEditing(false);
+            handleCancel(); // Close modal and reset after submission
+        } else if (myPrompts.length < 3) {
             const data = {
                 prompt: activePrompt.id,
                 response: responseText,
@@ -144,9 +166,16 @@ const UserPromptsManager = () => {
                     justifyContent: "space-between",
                 }}
             >
-                <Button onClick={() => setActivePrompt(null)}>Back</Button>
+                <Button
+                    onClick={() => {
+                        resetActivePrompt();
+                        setActivePrompt(null);
+                    }}
+                >
+                    Back
+                </Button>
                 <Button type="primary" onClick={submitResponse}>
-                    Submit Response
+                    {promptEditing ? "Change Answer" : "Add Prompt"}
                 </Button>
             </div>
         </div>
@@ -161,7 +190,12 @@ const UserPromptsManager = () => {
                             key={index}
                             title={prompt.prompt}
                             actions={[
-                                <EditOutlined />,
+                                <EditOutlined
+                                    key="edit"
+                                    onClick={() => {
+                                        handlePromptEdit(prompt);
+                                    }}
+                                />,
                                 <DeleteOutlined
                                     key="delete"
                                     onClick={() => {
@@ -202,8 +236,8 @@ const UserPromptsManager = () => {
                 </Col>
             </Row>
             <Modal
-                title="Select a Prompt"
-                open={isModalVisible}
+                title={promptEditing ? "Edit Prompt" : "Add Prompt"}
+                open={isCreatePromptVisible}
                 onCancel={handleCancel}
                 footer={null}
                 width={800}

@@ -80,9 +80,10 @@ This will create 100 dummy ratings for the dummy users you added
 -   [x] Add user registration page
 -   [x] Implement Frontend to notify users of matches and likes (notification system)
 -   [x] Add drag and drop to re-order pictures on frontend
--   [ ] Add more profile options such as prompts and interests
--   [ ] Use slugs instead of ids for all models
--   [ ] Add profile completeness metric to unincentivise empty profiles
+-   [x] Add more profile options such as prompts and interests
+-   [x] Change ids to be UUID fields
+-   [ ] Add profile completeness metric to unincentivise or simply not show empty profiles
+-   [ ] Restrict editing certain fields too many times (Changing name, age, etc. frequenctly)
 -   [ ] Write comprehensive unit tests for backend
 -   [ ] Use image-to-text model to add extra information to users profiles based on active pictures
 -   [ ] Limit number of user picture uploads for profile
