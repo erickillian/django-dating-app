@@ -35,8 +35,6 @@ const MatchMessagesPage = () => {
 
         document.cookie = "Authorization=" + userToken + "; path=/";
         ws.current = new WebSocket(`ws://localhost/ws/dating/${match_id}/`);
-        // ws.current.onopen = () => console.log("Connected to WS");
-        // ws.current.onclose = () => console.log("Disconnected from WS");
 
         ws.current.onmessage = (e) => {
             const data = JSON.parse(e.data);

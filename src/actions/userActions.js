@@ -103,7 +103,6 @@ export const uploadUserPicture = (imageFile) => {
                 },
                 onUploadProgress: progressEvent => {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    console.log(percentCompleted)
                     dispatch({ type: 'UPLOAD_PROGRESS', payload: percentCompleted });
                 }
             });
@@ -118,9 +117,7 @@ export const uploadUserPicture = (imageFile) => {
 };
 
 export const deleteUserPicture = (picture_id) => {
-    console.log("Delete Picture " + picture_id);
     return async (dispatch) => {
-        console.log("Dispatching delete")
         dispatch({ type: 'DELETE_USER_PICTURE_START', payload: picture_id });
         try {
             const response = await api.delete(`/user/pictures/${picture_id}/`);
@@ -172,7 +169,6 @@ export const updateUserPicturesOrder = (orderedPictureIds) => {
 
 
 export const searchInterests = (query) => {
-    console.log("Searching", query)
     return async dispatch => {
         dispatch({ type: 'SEARCH_INTERESTS_START' });
         try {
@@ -204,7 +200,6 @@ export const fetchPromptsCategories = () => {
 
 
 export const fetchPrompts = (category) => {
-    console.log("Fetching prompts", category)
     return async dispatch => {
         dispatch({ type: 'FETCH_PROMPTS_START', payload: { category: category } });
         try {
@@ -236,7 +231,6 @@ export const createUserPromptResponse = (promptResponseData) => {
 };
 
 export const deleteUserPromptResponse = (prompt) => {
-    console.log("PROMPT: ", prompt)
     return async dispatch => {
         dispatch({ type: 'DELETE_USER_PROMPT_RESPONSE_START' });
         try {

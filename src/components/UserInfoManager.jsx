@@ -61,7 +61,6 @@ const UserInfoManager = () => {
                 return;
             }
             if (field.touched) {
-                console.log(field.name[0]);
                 acc[field.name[0]] = field.value;
             }
             return acc;
