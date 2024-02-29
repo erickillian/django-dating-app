@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from .models import UserProfile, UserPicture, Interest, Prompt, UserPromptResponse
+from .models import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .constants import *
@@ -216,6 +216,26 @@ class InterestSearchView(APIView):
         query = request.query_params.get("query", "")
         interests = Interest.objects.filter(name__icontains=query)[:5]
         serializer = InterestSerializer(interests, many=True)
+        return Response(serializer.data)
+
+
+class LanguageSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get("query", "")
+        languages = Language.objects.filter(name__icontains=query)[:5]
+        serializer = LanguageSerializer(languages, many=True)
+        return Response(serializer.data)
+
+
+class NationalitySearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get("query", "")
+        nationalities = Nationality.objects.filter(name__icontains=query)[:5]
+        serializer = NationalitySerializer(nationalities, many=True)
         return Response(serializer.data)
 
 

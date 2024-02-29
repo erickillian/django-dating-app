@@ -62,6 +62,22 @@ class Interest(models.Model):
         return self.name
 
 
+class Language(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Nationality(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return self.name
+
+
 class UserProfile(AbstractUser):
     # Remove the original username field
     username = None
@@ -110,6 +126,88 @@ class UserProfile(AbstractUser):
     generated_profile = models.BooleanField(default=False)
 
     interests = models.ManyToManyField(Interest, blank=True, related_name="users")
+
+    languages = models.ManyToManyField(Language, blank=True, related_name="users")
+
+    nationalities = models.ManyToManyField(
+        Nationality, blank=True, related_name="users"
+    )
+
+    occupation = models.CharField(
+        max_length=40, blank=True, help_text="Current occupation"
+    )
+
+    education = models.CharField(
+        max_length=40, blank=True, help_text="Highest level of education achieved"
+    )
+
+    profile_visibility = models.CharField(
+        max_length=10,
+        choices=[("Public", "Public"), ("Private", "Private")],
+        default="Public",
+        help_text="Profile visibility settings",
+    )
+
+    looking_for = models.CharField(
+        max_length=50,
+        blank=True,
+        choices=[
+            ("Long-term relationship", "Long-term relationship"),
+            ("Long-term open to short-term", "Long-term open to short-term"),
+            ("Short-term open to long-term", "Short-term open to long-term"),
+            ("Short-term relationship", "Short-term relationship"),
+            ("Friendship", "Friendship"),
+            ("Other", "Other"),
+        ],
+        help_text="Describe what you're looking for",
+    )
+
+    eye_color = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=[
+            ("Brown", "Brown"),
+            ("Blue", "Blue"),
+            ("Green", "Green"),
+            ("Hazel", "Hazel"),
+            ("Grey", "Grey"),
+            ("Other", "Other"),
+        ],
+        help_text="Eye color",
+    )
+
+    hair_color = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=[
+            ("Black", "Black"),
+            ("Brown", "Brown"),
+            ("Blonde", "Blonde"),
+            ("Red", "Red"),
+            ("Grey", "Grey"),
+            ("Other", "Other"),
+        ],
+        help_text="Hair color",
+    )
+
+    ethnicity = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Ethnic background",
+        choices=[
+            ("Asian", "Asian"),
+            ("Black or African American", "Black or African American"),
+            ("Hispanic or Latino", "Hispanic or Latino"),
+            ("White", "White"),
+            ("Native American", "Native American"),
+            ("Pacific Islander", "Pacific Islander"),
+            ("Middle Eastern", "Middle Eastern"),
+            ("Mixed", "Mixed"),
+            ("Other", "Other"),
+            ("Prefer not to say", "Prefer not to say"),
+            ("Not applicable", "Not applicable"),
+        ],
+    )
 
     @property
     def num_likes(self):

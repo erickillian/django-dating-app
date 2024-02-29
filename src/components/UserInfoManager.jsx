@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUserInfo, searchInterests } from "../actions/userActions";
-import { Form, Input, Select, Button, Spin, message } from "antd";
+import {
+    updateUserInfo,
+    searchInterests,
+    searchLanguages,
+    searchNationalities,
+} from "../actions/userActions";
+import { Card, Form, Input, Select, Button, Spin, message } from "antd";
 
 const { Option } = Select;
 
@@ -14,32 +19,61 @@ const availableInterests = [
     "Sports",
 ];
 
-const formFields = {
-    full_name: { label: "Name", type: "text", options: [] },
-    birth_date: { label: "Birth Date", type: "date", options: [] },
-    gender: {
-        label: "Gender",
-        type: "select",
-        options: ["Male", "Female", "Other", "Prefer not to say"],
-    },
-    sexual_orientation: {
-        label: "Sexual Orientation",
-        type: "select",
-        options: ["Straight", "Gay", "Bisexual", "Other", "Prefer not to say"],
-    },
-    location: { label: "Location", type: "text", options: [] },
-    height: { label: "Height (in cm)", type: "number", options: [] },
-    interests: { label: "Interests", type: "interests", options: [] },
-};
-
 const UserInfoManager = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user_profile);
     const interestsQuery = useSelector((state) => state.user.interests_query);
+    const nationaltiesQuery = useSelector(
+        (state) => state.user.nationalities_query
+    );
+    const languagesQuery = useSelector((state) => state.user.languages_query);
     const [userProfileState, setUserProfileState] = useState({});
     const [changedFields, setChangedFields] = useState({});
     const [selectedInterests, setSelectedInterests] = useState([]);
     const [formKey, setFormKey] = useState(Date.now()); // Using Date.now() to generate a unique key
+
+    const formFields = {
+        full_name: { label: "Name", type: "text", options: [] },
+        birth_date: { label: "Birth Date", type: "date", options: [] },
+        gender: {
+            label: "Gender",
+            type: "select",
+            options: ["Male", "Female", "Other", "Prefer not to say"],
+        },
+        sexual_orientation: {
+            label: "Sexual Orientation",
+            type: "select",
+            options: [
+                "Straight",
+                "Gay",
+                "Bisexual",
+                "Other",
+                "Prefer not to say",
+            ],
+        },
+        height: { label: "Height (in cm)", type: "number", options: [] },
+        interests: {
+            label: "Interests",
+            type: "tags",
+            options: [],
+            search: searchInterests,
+            query: interestsQuery,
+        },
+        languages: {
+            label: "Languages",
+            type: "tags",
+            options: [],
+            search: searchLanguages,
+            query: languagesQuery,
+        },
+        nationalities: {
+            label: "Nationalities",
+            type: "tags",
+            options: [],
+            search: searchNationalities,
+            query: nationaltiesQuery,
+        },
+    };
 
     useEffect(() => {
         if (user) {
@@ -100,58 +134,67 @@ const UserInfoManager = () => {
 
     return (
         <>
-            <Spin spinning={Object.keys(userProfileState).length === 0}>
-                <Form
-                    layout="vertical"
-                    key={formKey} // Use the dynamic key
-                    onFieldsChange={handleChange}
-                    onFinish={handleSubmit}
-                    initialValues={userProfileState} // Use the state that's updated when user data is loaded
-                >
-                    {Object.keys(formFields).map((key) => {
-                        const field = formFields[key];
-                        return (
-                            <Form.Item key={key} label={field.label} name={key}>
-                                {field.type === "select" ? (
-                                    <Select>
-                                        {field.options.map((option) => (
-                                            <Option key={option} value={option}>
-                                                {option}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                ) : field.type === "interests" ? (
-                                    <Select
-                                        mode="multiple"
-                                        style={{ width: "100%" }}
-                                        placeholder="Select or add interests"
-                                        maxCount={6}
-                                        onSearch={(value) =>
-                                            dispatch(searchInterests(value))
-                                        }
-                                        optionLabelProp="label"
-                                    >
-                                        {interestsQuery.map((interest) => (
-                                            <Option
-                                                key={interest.id}
-                                                value={interest.name}
-                                                label={interest.name}
-                                            >
-                                                {interest.name}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                ) : (
-                                    <Input type={field.type} />
-                                )}
-                            </Form.Item>
-                        );
-                    })}
-                    <Button type="primary" htmlType="submit">
-                        Save Changes
-                    </Button>
-                </Form>
-            </Spin>
+            <Card title="Basic Information" bordered={false}>
+                <Spin spinning={Object.keys(userProfileState).length === 0}>
+                    <Form
+                        layout="vertical"
+                        key={formKey} // Use the dynamic key
+                        onFieldsChange={handleChange}
+                        onFinish={handleSubmit}
+                        initialValues={userProfileState} // Use the state that's updated when user data is loaded
+                    >
+                        {Object.keys(formFields).map((key) => {
+                            const field = formFields[key];
+                            return (
+                                <Form.Item
+                                    key={key}
+                                    label={field.label}
+                                    name={key}
+                                >
+                                    {field.type === "select" ? (
+                                        <Select>
+                                            {field.options.map((option) => (
+                                                <Option
+                                                    key={option}
+                                                    value={option}
+                                                >
+                                                    {option}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    ) : field.type === "tags" ? (
+                                        <Select
+                                            mode="multiple"
+                                            style={{ width: "100%" }}
+                                            placeholder="Select or add interests"
+                                            maxCount={6}
+                                            onSearch={(value) =>
+                                                dispatch(field.search(value))
+                                            }
+                                            optionLabelProp="label"
+                                        >
+                                            {field.query.map((interest) => (
+                                                <Option
+                                                    key={interest.id}
+                                                    value={interest.name}
+                                                    label={interest.name}
+                                                >
+                                                    {interest.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    ) : (
+                                        <Input type={field.type} />
+                                    )}
+                                </Form.Item>
+                            );
+                        })}
+                        <Button type="primary" htmlType="submit">
+                            Save Changes
+                        </Button>
+                    </Form>
+                </Spin>
+            </Card>
         </>
     );
 };

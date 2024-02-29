@@ -39,13 +39,11 @@ const ProfilePage = () => {
                         <UserPromptsManager />
                     </Col>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                        <Card title="Edit Profile" bordered={false}>
-                            <UserInfoManager
-                                user={user}
-                                loading={loading}
-                                error={error}
-                            />
-                        </Card>
+                        <UserInfoManager
+                            user={user}
+                            loading={loading}
+                            error={error}
+                        />
                     </Col>
                 </Row>
             </>

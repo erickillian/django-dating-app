@@ -7,15 +7,19 @@ const ProfileCompleteness = ({ completeness }) => {
         "100%": "#87d068",
     };
     const conicColors = {
-        "0%": "#87d068",
+        "0%": "#ffccc7",
         "50%": "#ffe58f",
-        "100%": "#ffccc7",
+        "100%": "#87d068",
     };
 
     return (
         <Card title="Profile Completeness">
             <div>
-                <Progress percent={completeness} strokeColor={twoColors} />
+                <Progress
+                    percent={completeness}
+                    strokeColor={conicColors}
+                    size={["large", 30]}
+                />
             </div>
         </Card>
     );

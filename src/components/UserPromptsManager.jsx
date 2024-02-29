@@ -199,7 +199,7 @@ const UserPromptsManager = () => {
     );
 
     return (
-        <Card title="Your Prompts">
+        <Card title="Prompts">
             <Row gutter={[16, 16]}>
                 {myPrompts.map((prompt, index) => (
                     <Col key={index}>

@@ -207,7 +207,7 @@ const UserPicturesManager = () => {
     };
 
     return (
-        <Card title="Your Pictures" bordered={false}>
+        <Card title="Pictures" bordered={false}>
             <DndContext
                 sensors={[sensor]}
                 collisionDetection={closestCenter}

@@ -180,6 +180,30 @@ export const searchInterests = (query) => {
     };
 }
 
+export const searchLanguages = (query) => {
+    return async dispatch => {
+        dispatch({ type: 'SEARCH_LANGUAGES_START' });
+        try {
+            const response = await api.get(`user/languages/search/?query=${query}`);
+            dispatch({ type: 'SEARCH_LANGUAGES_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'SEARCH_LANGUAGES_ERROR', payload: error.response.data });
+        }
+    };
+}
+
+export const searchNationalities = (query) => {
+    return async dispatch => {
+        dispatch({ type: 'SEARCH_NATIONALITIES_START' });
+        try {
+            const response = await api.get(`user/nationalities/search/?query=${query}`);
+            dispatch({ type: 'SEARCH_NATIONALITIES_SUCCESS', payload: response.data });
+        } catch (error) {
+            dispatch({ type: 'SEARCH_NATIONALITIES_ERROR', payload: error.response.data });
+        }
+    };
+}
+
 
 export const fetchPromptsCategories = () => {
     return async dispatch => {

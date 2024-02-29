@@ -9,14 +9,7 @@ from ipware import get_client_ip
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
-from dating.users.models import (
-    UserProfile,
-    UserPicture,
-    IpAddress,
-    Prompt,
-    Interest,
-    UserPromptResponse,
-)
+from dating.users.models import *
 import operator
 from .constants import *
 
@@ -177,6 +170,18 @@ class InterestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = "__all__"
+
+
+class NationalitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Nationality
+        fields = "__all__"
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     pictures = serializers.SerializerMethodField()
     # Add shared fields directly into the base class
@@ -186,6 +191,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(allow_blank=True)
     height = serializers.IntegerField(allow_null=True)
     interests = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
+    languages = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
+    nationalities = serializers.ListSerializer(
         child=serializers.CharField(), required=False
     )
     prompts = PromptResponseSerializer(many=True, required=False)
@@ -201,6 +212,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "full_name",
             "height",
             "interests",
+            "languages",
+            "nationalities",
             "prompts",
         ]
         read_only_fields = ["id", "age"]
@@ -211,21 +224,36 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ).order_by("order")[:MAX_ACTIVE_PICTURES]
         return UserPictureSerializer(pictures, many=True).data
 
-    def validate_interests(self, value):
-        if len(value) > MAX_INTERESTS:
+    def validate_languages(self, value):
+        if len(value) > MAX_LANGUAGES:
             raise serializers.ValidationError(
-                f"You can have a maximum of {MAX_INTERESTS} interests."
+                f"You can have a maximum of {MAX_LANGUAGES} languages."
+            )
+        return value
+
+    def validate_nationalities(self, value):
+        if len(value) > MAX_NATIONALITIES:
+            raise serializers.ValidationError(
+                f"You can have a maximum of {MAX_NATIONALITIES} nationalities."
             )
         return value
 
     def update(self, instance, validated_data):
         # Handle the interests separately
         interests_data = validated_data.pop("interests", None)
+        nationalities_data = validated_data.pop("nationalities", None)
+        languages_data = validated_data.pop("languages", None)
 
         # Update the UserProfile instance with other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        fields_to_update = [
+            ("languages", Language),
+            ("nationalities", Nationality),
+            ("interests", Interest),
+        ]
 
         # Handle updating interests here
         if interests_data is not None:
@@ -238,6 +266,28 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 except:
                     raise serializers.ValidationError(
                         f"Interest {interest_name} does not exist."
+                    )
+
+        if nationalities_data is not None:
+            instance.nationalities.clear()
+            for nationality_name in nationalities_data:
+                try:
+                    nationality_obj = Nationality.objects.get(name=nationality_name)
+                    instance.nationalities.add(nationality_obj)
+                except:
+                    raise serializers.ValidationError(
+                        f"Nationality {nationality_name} does not exist."
+                    )
+
+        if languages_data is not None:
+            instance.languages.clear()
+            for language_name in languages_data:
+                try:
+                    language_obj = Language.objects.get(name=language_name)
+                    instance.languages.add(language_obj)
+                except:
+                    raise serializers.ValidationError(
+                        f"Language {language_name} does not exist."
                     )
 
         return instance

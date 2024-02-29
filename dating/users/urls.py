@@ -35,6 +35,13 @@ urlpatterns = [
         UserPicturesView.as_view(),
     ),
     path("interests/search/", InterestSearchView.as_view(), name="interest-search"),
+    path(
+        "nationalities/search/",
+        NationalitySearchView.as_view(),
+        name="nationality-search",
+    ),
+    path("languages/search/", LanguageSearchView.as_view(), name="language-search"),
+    path("languages/search/", InterestSearchView.as_view(), name="interest-search"),
     path("prompts-list/", PromptListView.as_view(), name="prompt-list"),
     path("prompts-categories/", CategoryListView.as_view(), name="category-list"),
     path("", include(router.urls)),

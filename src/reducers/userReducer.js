@@ -18,6 +18,8 @@ const initialState = {
     user_uploading: false,
 
     interests_query: [],
+    nationalities_query: [],
+    languages_query: [],
 
     prompt_categories_loading: false,
     prompt_categories: [],
@@ -30,6 +32,7 @@ const initialState = {
 
     edit_prompt_loading: false,
     edit_prompt_error: null,
+    
 };
 
 const userReducer = (state = initialState, action) => {
@@ -140,6 +143,14 @@ const userReducer = (state = initialState, action) => {
         case 'SEARCH_INTERESTS_SUCCESS':
             return {
                 ...state, interests_query: action.payload,
+            };
+        case 'SEARCH_NATIONALITIES_SUCCESS':
+            return {
+                ...state, nationalities_query: action.payload,
+            };
+        case 'SEARCH_LANGUAGES_SUCCESS':
+            return {
+                ...state, languages_query: action.payload,
             };
         case 'FETCH_PROMPTS_CATEGORIES_START':
             return {
