@@ -113,6 +113,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = UserProfile.objects.create_user(phone_number=phone_number, password="")
         user.set_password(password)
         user.save()
+        ip_address = get_client_ip(self.context["request"])[0]
+        save_ip_address(user, ip_address)
 
         return user
 
