@@ -1,8 +1,8 @@
 .custom-upload-list .ant-upload,
 .custom-upload-list .ant-upload-list-item-container {
-    width: 200px !important;
+    width: 180px !important;
     /* Increase width */
-    height: 250px !important;
+    height: 230px !important;
     /* Increase height */
 }
 
@@ -30,7 +30,7 @@
 
 .ant-upload-list.ant-upload-list-picture-card {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     /* Align items horizontally in the center */
     flex-wrap: wrap;
     /* Allow items to wrap onto multiple lines */
@@ -39,10 +39,11 @@
 }
 
 
-.ant-upload-list-picture-card::before {
+.ant-upload-list::before {
     /* or some content */
     padding: 0px !important;
     height: 0px !important;
+    display: none !important;
     /* Example padding */
     /* other styles */
 }

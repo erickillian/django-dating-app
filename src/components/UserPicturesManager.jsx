@@ -191,7 +191,10 @@ const UserPicturesManager = () => {
                         onClick={(e) => handlePreview(file)}
                     />
                 }
-                style={{ border: file.active ? "1px solid #11cc11" : "none" }}
+                style={{
+                    border: file.active ? "1px solid #11cc11" : "none",
+                    boxSizing: "border-box",
+                }}
                 bordered={false}
                 actions={[
                     <EyeOutlined
@@ -294,7 +297,9 @@ const UserPicturesManager = () => {
                     {activeId
                         ? fileList.map((file) => {
                               if (file.uid === activeId) {
-                                  return <PictureCard file={file} />;
+                                  return (
+                                      <PictureCard file={file} key="dragged" />
+                                  );
                               } else {
                                   return null;
                               }
