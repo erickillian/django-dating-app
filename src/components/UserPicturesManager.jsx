@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Modal, Upload, message } from "antd";
 import {
@@ -22,6 +22,7 @@ import {
     PointerSensor,
     useSensor,
     closestCenter,
+    DragOverlay,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -46,6 +47,7 @@ const UserPicturesManager = () => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [fileList, setFileList] = useState([]);
+    const [activeId, setActiveId] = useState(null);
     const sensor = useSensor(PointerSensor, {
         activationConstraint: { distance: 20 },
     });
@@ -102,6 +104,31 @@ const UserPicturesManager = () => {
         dispatch(deleteUserPicture(file.uid));
     };
 
+    const handleDragStart = useCallback((event) => {
+        setActiveId(event.active.id);
+    }, []);
+
+    const handleDragEnd = useCallback((event) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setItems((items) => {
+                const oldIndex = items.indexOf(active.id);
+                const newIndex = items.indexOf(over.id);
+
+                return arrayMove(items, oldIndex, newIndex);
+            });
+            // Reset drag over index after dropping
+            setDragOverIndex(null);
+        }
+        setActiveId(null);
+    }, []);
+
+    const handleDragCancel = useCallback(() => {
+        setActiveId(null);
+        setDragOverIndex(null); // Reset on cancel as well
+    }, []);
+
     const onDragEnd = ({ active, over }) => {
         if (active.id !== over?.id) {
             setFileList((prev) => {
@@ -145,6 +172,42 @@ const UserPicturesManager = () => {
         </div>
     );
 
+    const PictureCard = ({ file }) => {
+        return (
+            <Card
+                className="picture-card"
+                hoverable
+                cover={
+                    <img
+                        alt={file.name}
+                        src={file.url}
+                        style={{
+                            width: "100%",
+                            height: "auto",
+                            objectFit: "cover",
+                        }}
+                        draggable={false}
+                        onClick={(e) => handlePreview(file)}
+                    />
+                }
+                actions={[
+                    <EyeOutlined
+                        key="preview"
+                        onClick={(e) => handlePreview(file)}
+                    />,
+                    <DownloadOutlined
+                        key="download"
+                        onClick={() => handleDownload(file.url, file.name)}
+                    />,
+                    <DeleteOutlined
+                        key="delete"
+                        onClick={(e) => handleRemove(file)}
+                    />,
+                ]}
+            ></Card>
+        );
+    };
+
     const DraggableUploadListItem = ({ file, originNode, actions }) => {
         const {
             attributes,
@@ -152,7 +215,8 @@ const UserPicturesManager = () => {
             setNodeRef,
             transform,
             transition,
-            isDragging, // This property indicates if the current item is being dragged
+            isDragging,
+            isOver,
         } = useSortable({ id: file.uid });
 
         const style = {
@@ -161,6 +225,8 @@ const UserPicturesManager = () => {
             cursor: isDragging ? "grabbing" : "grab", // Change the cursor based on the dragging state
             zIndex: isDragging ? 10 : 1, // Adjust the zIndex based on the dragging state
             position: isDragging ? "relative" : "static", // Add this linez
+            // outline: isDragging ? "2px solid blue" : "none",
+            opacity: isDragging ? 0.5 : 1,
         };
 
         return (
@@ -171,37 +237,7 @@ const UserPicturesManager = () => {
                 {...listeners}
                 className={isDragging ? "is-dragging" : ""}
             >
-                <Card
-                    hoverable
-                    cover={
-                        <img
-                            alt={file.name}
-                            src={file.url}
-                            style={{
-                                width: "100%",
-                                height: "auto",
-                                objectFit: "cover",
-                                opacity: file.active ? 1 : 0.5, // Adjust the opacity based on the dragging state
-                            }}
-                            draggable={false}
-                            onClick={(e) => handlePreview(file)}
-                        />
-                    }
-                    actions={[
-                        <EyeOutlined
-                            key="preview"
-                            onClick={(e) => handlePreview(file)}
-                        />,
-                        <DownloadOutlined
-                            key="download"
-                            onClick={() => handleDownload(file.url, file.name)}
-                        />,
-                        <DeleteOutlined
-                            key="delete"
-                            onClick={(e) => handleRemove(file)}
-                        />,
-                    ]}
-                />
+                <PictureCard file={file} />
             </div>
         );
     };
@@ -212,6 +248,8 @@ const UserPicturesManager = () => {
                 sensors={[sensor]}
                 collisionDetection={closestCenter}
                 onDragEnd={onDragEnd}
+                onDragStart={(event) => setActiveId(event.active.id)}
+                onDragCancel={() => setActiveId(null)}
             >
                 <SortableContext
                     items={fileList.map((file) => file.uid)}
@@ -249,6 +287,17 @@ const UserPicturesManager = () => {
                         </Upload>
                     </ImgCrop>
                 </SortableContext>
+                <DragOverlay className="drag-overlay">
+                    {activeId
+                        ? fileList.map((file) => {
+                              if (file.uid === activeId) {
+                                  return <PictureCard file={file} />;
+                              } else {
+                                  return null;
+                              }
+                          })
+                        : null}
+                </DragOverlay>
             </DndContext>
             <Modal
                 open={previewOpen}

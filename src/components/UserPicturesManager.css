@@ -12,20 +12,11 @@
     overflow: hidden !important;
 } */
 
-.custom-upload-list .ant-upload-list {
-    /* Adjust minmax as needed */
-    gap: 16px;
-    /* Adjust the gap as needed */
-    /* Adjust the gap as needed */
-    /* Adjust the gap as needed */
-    justify-content: flex-start !important;
-    /* Align items to the start of the container */
-}
+
 
 
 /* Hide the card body */
-.dropzone .ant-card-body,
-.custom-upload-list .ant-card-body {
+.picture-card .ant-card-body {
     display: none !important;
 }
 
@@ -35,4 +26,23 @@
 
 .custom-upload-list.hide .ant-upload-select {
     display: none !important;
+}
+
+.ant-upload-list.ant-upload-list-picture-card {
+    display: flex;
+    justify-content: center;
+    /* Align items horizontally in the center */
+    flex-wrap: wrap;
+    /* Allow items to wrap onto multiple lines */
+    gap: 8px;
+    /* Optional: Adjust the gap between items */
+}
+
+
+.ant-upload-list-picture-card::before {
+    /* or some content */
+    padding: 0px !important;
+    height: 0px !important;
+    /* Example padding */
+    /* other styles */
 }
