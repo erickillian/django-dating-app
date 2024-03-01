@@ -214,7 +214,9 @@ class InterestSearchView(APIView):
 
     def get(self, request):
         query = request.query_params.get("query", "")
-        interests = Interest.objects.filter(name__icontains=query)[:5]
+        if query == "":
+            return Response([])
+        interests = Interest.objects.filter(name__icontains=query)[:QUERY_RESULT_LIMIT]
         serializer = InterestSerializer(interests, many=True)
         return Response(serializer.data)
 
@@ -224,7 +226,9 @@ class LanguageSearchView(APIView):
 
     def get(self, request):
         query = request.query_params.get("query", "")
-        languages = Language.objects.filter(name__icontains=query)[:5]
+        if query == "":
+            return Response([])
+        languages = Language.objects.filter(name__icontains=query)[:QUERY_RESULT_LIMIT]
         serializer = LanguageSerializer(languages, many=True)
         return Response(serializer.data)
 
@@ -234,7 +238,11 @@ class NationalitySearchView(APIView):
 
     def get(self, request):
         query = request.query_params.get("query", "")
-        nationalities = Nationality.objects.filter(name__icontains=query)[:5]
+        if query == "":
+            return Response([])
+        nationalities = Nationality.objects.filter(name__icontains=query)[
+            :QUERY_RESULT_LIMIT
+        ]
         serializer = NationalitySerializer(nationalities, many=True)
         return Response(serializer.data)
 

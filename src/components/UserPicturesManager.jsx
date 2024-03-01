@@ -185,11 +185,14 @@ const UserPicturesManager = () => {
                             width: "100%",
                             height: "auto",
                             objectFit: "cover",
+                            opacity: file.active ? 1 : 0.5,
                         }}
                         draggable={false}
                         onClick={(e) => handlePreview(file)}
                     />
                 }
+                style={{ border: file.active ? "1px solid #11cc11" : "none" }}
+                bordered={false}
                 actions={[
                     <EyeOutlined
                         key="preview"

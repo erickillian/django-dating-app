@@ -99,6 +99,7 @@ const UserInfoManager = () => {
             options: [],
             search: searchInterests,
             query: interestsQuery,
+            max: 6,
         },
         languages: {
             label: "Languages",
@@ -106,6 +107,7 @@ const UserInfoManager = () => {
             options: [],
             search: searchLanguages,
             query: languagesQuery,
+            max: 4,
         },
         nationalities: {
             label: "Nationalities",
@@ -113,6 +115,7 @@ const UserInfoManager = () => {
             options: [],
             search: searchNationalities,
             query: nationaltiesQuery,
+            max: 4,
         },
     };
 
@@ -208,21 +211,23 @@ const UserInfoManager = () => {
                                             mode="multiple"
                                             style={{ width: "100%" }}
                                             placeholder="Select or add interests"
-                                            maxCount={6}
+                                            maxCount={field.max}
                                             onSearch={(value) =>
                                                 dispatch(field.search(value))
                                             }
                                             optionLabelProp="label"
+                                            notFoundContent={null}
                                         >
-                                            {field.query.map((interest) => (
-                                                <Option
-                                                    key={interest.id}
-                                                    value={interest.name}
-                                                    label={interest.name}
-                                                >
-                                                    {interest.name}
-                                                </Option>
-                                            ))}
+                                            {field.query.length > 0 &&
+                                                field.query.map((interest) => (
+                                                    <Option
+                                                        key={interest.id}
+                                                        value={interest.name}
+                                                        label={interest.name}
+                                                    >
+                                                        {interest.name}
+                                                    </Option>
+                                                ))}
                                         </Select>
                                     ) : (
                                         <Input type={field.type} />
