@@ -82,7 +82,7 @@ This will create 100 dummy ratings for the dummy users you added
 -   [x] Add drag and drop to re-order pictures on frontend
 -   [x] Add more profile options such as prompts and interests
 -   [x] Change ids to be UUID fields
--   [ ] Add profile completeness metric to unincentivise or simply not show empty profiles
+-   [x] Add profile completeness metric to unincentivise or simply not show empty profiles
 -   [ ] Restrict editing certain fields too many times (Changing name, age, etc. frequenctly)
 -   [ ] Write comprehensive unit tests for backend
 -   [ ] Use image-to-text model to add extra information to users profiles based on active pictures

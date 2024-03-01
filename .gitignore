@@ -16,4 +16,5 @@ dist/bundle.js.LICENSE.txt
 static/
 media/
 
-data/
+/data/
+
