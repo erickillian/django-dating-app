@@ -184,20 +184,19 @@ class NationalitySerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     pictures = serializers.SerializerMethodField()
-    # Add shared fields directly into the base class
     sexual_orientation = serializers.CharField(allow_blank=True)
     gender = serializers.CharField(allow_blank=True)
     age = serializers.IntegerField()
     full_name = serializers.CharField(allow_blank=True)
     height = serializers.IntegerField(allow_null=True)
-    interests = serializers.ListSerializer(
-        child=serializers.CharField(), required=False
+    interests = serializers.SlugRelatedField(
+        slug_field="name", queryset=Interest.objects.all(), many=True, required=False
     )
-    languages = serializers.ListSerializer(
-        child=serializers.CharField(), required=False
+    languages = serializers.SlugRelatedField(
+        slug_field="name", queryset=Language.objects.all(), many=True, required=False
     )
-    nationalities = serializers.ListSerializer(
-        child=serializers.CharField(), required=False
+    nationalities = serializers.SlugRelatedField(
+        slug_field="name", queryset=Nationality.objects.all(), many=True, required=False
     )
     prompts = PromptResponseSerializer(many=True, required=False)
 
@@ -245,66 +244,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        # Handle the interests separately
-        interests_data = validated_data.pop("interests", None)
-        nationalities_data = validated_data.pop("nationalities", None)
-        languages_data = validated_data.pop("languages", None)
+        m2m_fields = ["interests", "languages", "nationalities"]
 
-        # Update the UserProfile instance with other fields
-        for attr, value in validated_data.items():
+        # Standard fields update
+        standard_fields = {
+            key: value for key, value in validated_data.items() if key not in m2m_fields
+        }
+        for attr, value in standard_fields.items():
             setattr(instance, attr, value)
         instance.save()
 
-        fields_to_update = [
-            ("languages", Language),
-            ("nationalities", Nationality),
-            ("interests", Interest),
-        ]
-
-        # Handle updating interests here
-        if interests_data is not None:
-            # Clear existing interests or find a way to update them
-            instance.interests.clear()  # Assuming a ManyToMany relationship
-            for interest_name in interests_data:
-                try:
-                    interest_obj = Interest.objects.get(name=interest_name)
-                    instance.interests.add(interest_obj)
-                except:
-                    raise serializers.ValidationError(
-                        f"Interest {interest_name} does not exist."
-                    )
-
-        if nationalities_data is not None:
-            instance.nationalities.clear()
-            for nationality_name in nationalities_data:
-                try:
-                    nationality_obj = Nationality.objects.get(name=nationality_name)
-                    instance.nationalities.add(nationality_obj)
-                except:
-                    raise serializers.ValidationError(
-                        f"Nationality {nationality_name} does not exist."
-                    )
-
-        if languages_data is not None:
-            instance.languages.clear()
-            for language_name in languages_data:
-                try:
-                    language_obj = Language.objects.get(name=language_name)
-                    instance.languages.add(language_obj)
-                except:
-                    raise serializers.ValidationError(
-                        f"Language {language_name} does not exist."
-                    )
+        # Simplified handling for many-to-many fields
+        for field in m2m_fields:
+            if field in validated_data:
+                getattr(instance, field).set(validated_data[field])
 
         return instance
 
     def to_representation(self, instance):
-        """
-        Convert the interest model instances to their names for representation.
-        """
-        ret = super().to_representation(instance)
-        ret["interests"] = [interest.name for interest in instance.interests.all()]
-        return ret
+        representation = super().to_representation(instance)
+        # No need to override interests representation if using SlugRelatedField
+        return representation
 
 
 class MyUserProfileSerializer(UserProfileSerializer):
