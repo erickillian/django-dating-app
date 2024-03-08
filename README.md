@@ -94,6 +94,7 @@ docker compose exec web python3 manage.py loadnationalities
 -   [x] Add more profile options such as prompts and interests
 -   [x] Change ids to be UUID fields
 -   [x] Add profile completeness metric to unincentivise or simply not show empty profiles
+-   [x] Profile visibility to different options
 -   [ ] Restrict editing certain fields too many times (Changing name, age, etc. frequenctly)
 -   [ ] Write comprehensive unit tests for backend
 -   [ ] Use image-to-text model to add extra information to users profiles based on active pictures
