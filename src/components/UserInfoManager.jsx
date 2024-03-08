@@ -19,18 +19,10 @@ import {
 
 const { Option } = Select;
 
-// Assuming interests are predefined or fetched from an API
-const availableInterests = [
-    "Reading",
-    "Gaming",
-    "Traveling",
-    "Cooking",
-    "Sports",
-];
-
 const UserInfoManager = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user_profile);
+    const errors = useSelector((state) => state.user.user_profile_error);
     const interestsQuery = useSelector((state) => state.user.interests_query);
     const nationaltiesQuery = useSelector(
         (state) => state.user.nationalities_query
@@ -38,7 +30,6 @@ const UserInfoManager = () => {
     const languagesQuery = useSelector((state) => state.user.languages_query);
     const [userProfileState, setUserProfileState] = useState({});
     const [changedFields, setChangedFields] = useState({});
-    const [selectedInterests, setSelectedInterests] = useState([]);
     const [formKey, setFormKey] = useState(Date.now()); // Using Date.now() to generate a unique key
 
     const formFields = {
@@ -169,10 +160,6 @@ const UserInfoManager = () => {
             });
             setFormKey(Date.now()); // Update key to force re-render
             setChangedFields({}); // Reset changed fields when user data is loaded
-
-            setSelectedInterests(
-                user.interests.map((interest) => interest.name) || []
-            );
         }
     }, [user]);
 
@@ -232,12 +219,28 @@ const UserInfoManager = () => {
                     >
                         {Object.keys(formFields).map((key) => {
                             const field = formFields[key];
+                            const err = errors?.[key]
+                                ? [{ errors: [errors[key]] }]
+                                : [];
                             return (
                                 <>
                                     <Form.Item
                                         key={key}
                                         label={field.label}
                                         name={key}
+                                        rules={[
+                                            {
+                                                required: field.required,
+                                                message: `Please input your ${field.label}!`,
+                                            },
+                                        ]}
+                                        // Add this line to show validation feedback based on `err`
+                                        validateStatus={
+                                            err.length > 0 ? "error" : ""
+                                        }
+                                        help={
+                                            err.length > 0 ? errors[key] : null
+                                        }
                                     >
                                         {field.type === "select" ? (
                                             <Select>
@@ -287,11 +290,10 @@ const UserInfoManager = () => {
                                             <Input type={field.type} />
                                         )}
                                     </Form.Item>
-                                    {field.visability === "controlable" && (
+                                    {field.visibility === "controlable" && (
                                         <Form.Item
                                             name={`${key}_visible`}
                                             valuePropName="checked"
-                                            initialValue={true} // Default visibility to true
                                         >
                                             <Checkbox>
                                                 Show {field.label}

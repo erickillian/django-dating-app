@@ -12,7 +12,7 @@ channels-redis==4.2.0
 charset-normalizer==3.3.2
 click==8.1.7
 constantly==23.10.4
-cryptography==42.0.4
+cryptography==42.0.2
 daphne==4.1.0
 defusedxml==0.7.1
 dj-rest-auth==5.0.2
@@ -22,6 +22,7 @@ django-cors-headers==4.3.1
 django-filter==23.5
 django-ipware==6.0.4
 django-phonenumber-field==7.3.0
+django-simple-history==3.5.0
 djangorestframework==3.14.0
 exceptiongroup==1.2.0
 Faker==23.2.1

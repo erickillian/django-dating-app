@@ -13,6 +13,9 @@ from dating.users.models import *
 import operator
 from .constants import *
 
+from django.utils.timezone import now
+from datetime import timedelta
+
 
 def validate_captcha(response, ip_address):
     if settings.DEBUG:
@@ -187,7 +190,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     sexual_orientation = serializers.CharField(allow_blank=True)
     gender = serializers.CharField(allow_blank=True)
     age = serializers.IntegerField()
-    full_name = serializers.CharField(allow_blank=True)
+    full_name = serializers.CharField(allow_blank=False)
     height = serializers.IntegerField(allow_null=True)
     interests = serializers.SlugRelatedField(
         slug_field="name", queryset=Interest.objects.all(), many=True, required=False
@@ -246,6 +249,34 @@ class UserProfileSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_full_name(self, value):
+        user_instance = self.instance
+        if user_instance:  # Check if we're updating an instance
+            last_change = user_instance.history.first()
+            if user_instance.full_name == "" or user_instance.full_name == None:
+                return value
+            if last_change and last_change.full_name != value:
+                time_since_last_change = now() - last_change.history_date
+                if time_since_last_change < timedelta(days=365):
+                    raise serializers.ValidationError(
+                        "Cannot change name more than once every year."
+                    )
+        return value
+
+    def validate_birth_date(self, value):
+        user_instance = self.instance
+        if user_instance:  # Check if we're updating an instance
+            last_change = user_instance.history.first()
+            if user_instance.birth_date == "" or user_instance.birth_date == None:
+                return value
+            if last_change and last_change.birth_date != value:
+                time_since_last_change = now() - last_change.history_date
+                if time_since_last_change < timedelta(days=365):
+                    raise serializers.ValidationError(
+                        "Cannot change birth date more than once every year."
+                    )
+        return value
+
     def update(self, instance, validated_data):
         m2m_fields = ["interests", "languages", "nationalities"]
 
@@ -279,7 +310,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # Remove empty fields
         for field in self.Meta.fields:
             if field in representation and (
-                representation[field] == "" or representation[field] is None
+                representation[field] == ""
+                or representation[field] == None
+                or representation[field] == []
             ):
                 representation.pop(field, None)
 

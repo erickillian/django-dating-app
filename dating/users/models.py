@@ -12,6 +12,9 @@ from django.core.exceptions import ValidationError
 from datetime import date
 import uuid
 from .constants import *
+from django.utils.timezone import now
+from datetime import timedelta
+from simple_history.models import HistoricalRecords
 
 
 class CustomUserManager(BaseUserManager):
@@ -217,6 +220,8 @@ class UserProfile(AbstractUser):
         "occupation",
         "education",
     ]
+
+    history = HistoricalRecords()
 
     # Visibility settings
     for field_name in visability_fields:

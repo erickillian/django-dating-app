@@ -112,14 +112,14 @@ class NextProfileView(APIView):
         potential_matches_filter = get_potential_matches_filter(request.user)
 
         # Select the next profile considering sexual orientation and gender preferences
-        next_profile = UserProfile.objects.filter(potential_matches_filter).first()
+        available_profiles = UserProfile.objects.filter(potential_matches_filter)
 
-        if next_profile:
+        if len(available_profiles) > 0:
+            next_profile = available_profiles.first()
             return Response(UserProfileSerializer(next_profile).data)
         else:
             return Response(
                 {"message": "No more profiles available"},
-                status=status.HTTP_204_NO_CONTENT,
             )
 
 

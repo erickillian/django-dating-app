@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django import forms
 from .models import *
+from simple_history.admin import SimpleHistoryAdmin
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -17,7 +18,7 @@ class MyUserCreationForm(UserCreationForm):
         fields = "__all__"  # Specify the fields you want to include
 
 
-class UserProfileAdmin(BaseUserAdmin):
+class UserProfileAdmin(SimpleHistoryAdmin):
     form = MyUserChangeForm
     add_form = MyUserCreationForm
 
@@ -33,13 +34,7 @@ class UserProfileAdmin(BaseUserAdmin):
         (None, {"fields": ("phone_number", "password")}),
         (
             "Admin",
-            {
-                "fields": (
-                    "is_superuser",
-                    "is_active",
-                    "is_staff",
-                )
-            },
+            {"fields": ("is_superuser", "is_active", "is_staff")},
         ),
         (
             "Personal info",
