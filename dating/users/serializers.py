@@ -278,7 +278,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         # Remove empty fields
         for field in self.Meta.fields:
-            if field is "":
+            if field in representation and (
+                representation[field] == "" or representation[field] is None
+            ):
                 representation.pop(field, None)
 
         return representation
