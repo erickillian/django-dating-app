@@ -74,6 +74,17 @@ docker compose exec web python3 manage.py createdummyratings --num_ratings 100
 
 This will create 100 dummy ratings for the dummy users you added
 
+To add interests, prompts, interests, languages, and nationalities run the following commands
+
+```
+docker compose exec web python3 manage.py loadprompts
+docker compose exec web python3 manage.py loadinterests
+docker compose exec web python3 manage.py loadlanguages
+docker compose exec web python3 manage.py loadnationalities
+```
+
+
+
 ## TODO:
 
 -   [x] Improve UI of login page
