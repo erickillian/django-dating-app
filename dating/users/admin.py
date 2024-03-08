@@ -55,6 +55,10 @@ class UserProfileAdmin(BaseUserAdmin):
                 )
             },
         ),
+        (
+            "Visibility",
+            {"fields": [field + "_visible" for field in UserProfile.visability_fields]},
+        ),
     )
     search_fields = ("phone_number", "full_name")  # Update as per your model fields
     ordering = ("phone_number",)  # Update as per your model fields

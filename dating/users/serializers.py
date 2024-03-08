@@ -202,6 +202,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
+        visability_fields = [
+            field + "_visible" for field in UserProfile.visability_fields
+        ]
         fields = [
             "id",
             "pictures",
@@ -261,23 +264,50 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         return instance
 
+    def to_full_representation(self, instance):
+        return super().to_representation(instance)
+
     def to_representation(self, instance):
+        # Start with the standard representation
         representation = super().to_representation(instance)
-        # No need to override interests representation if using SlugRelatedField
+
+        # For each field, check if it's marked as not visible and remove it
+        for field_name in UserProfileSerializer.Meta.visability_fields:
+            if not instance.__getattribute__(field_name):
+                representation.pop(field_name.split("_visible")[0], None)
+
+        # Remove empty fields
+        for field in self.Meta.fields:
+            if field is "":
+                representation.pop(field, None)
+
         return representation
 
 
 class MyUserProfileSerializer(UserProfileSerializer):
     birth_date = serializers.DateField(required=False, allow_null=True)
+    what_others_see = serializers.SerializerMethodField()
 
     class Meta(UserProfileSerializer.Meta):
-        fields = UserProfileSerializer.Meta.fields + [
-            "location",
-            "birth_date",
-            "num_likes",
-            "num_matches",
-            "profile_completeness",
-        ]
+
+        fields = (
+            UserProfileSerializer.Meta.fields
+            + [
+                "location",
+                "birth_date",
+                "num_likes",
+                "num_matches",
+                "profile_completeness",
+                "what_others_see",
+            ]
+            + UserProfileSerializer.Meta.visability_fields
+        )
+
+    def get_what_others_see(self, obj):
+        return UserProfileSerializer(obj).data
+
+    def to_representation(self, instance):
+        return super().to_full_representation(instance)
 
 
 class MinimalUserProfileSerializer(serializers.ModelSerializer):

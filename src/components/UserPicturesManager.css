@@ -1,8 +1,8 @@
 .custom-upload-list .ant-upload,
 .custom-upload-list .ant-upload-list-item-container {
-    width: 180px !important;
+    width: 185px !important;
     /* Increase width */
-    height: 230px !important;
+    height: 235px !important;
     /* Increase height */
 }
 
@@ -40,10 +40,7 @@
 
 
 .ant-upload-list::before {
-    /* or some content */
     padding: 0px !important;
     height: 0px !important;
     display: none !important;
-    /* Example padding */
-    /* other styles */
 }

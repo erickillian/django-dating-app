@@ -6,7 +6,16 @@ import {
     searchLanguages,
     searchNationalities,
 } from "../actions/userActions";
-import { Card, Form, Input, Select, Button, Spin, message } from "antd";
+import {
+    Card,
+    Form,
+    Input,
+    Select,
+    Button,
+    Spin,
+    Checkbox,
+    message,
+} from "antd";
 
 const { Option } = Select;
 
@@ -33,12 +42,23 @@ const UserInfoManager = () => {
     const [formKey, setFormKey] = useState(Date.now()); // Using Date.now() to generate a unique key
 
     const formFields = {
-        full_name: { label: "Name", type: "text", options: [] },
-        birth_date: { label: "Birth Date", type: "date", options: [] },
+        full_name: {
+            label: "Name",
+            type: "text",
+            options: [],
+            visability: "none",
+        },
+        birth_date: {
+            label: "Birth Date",
+            type: "date",
+            options: [],
+            visability: "none",
+        },
         gender: {
             label: "Gender",
             type: "select",
             options: ["Male", "Female", "Other", "Prefer not to say"],
+            visability: "controlable",
         },
         sexual_orientation: {
             label: "Sexual Orientation",
@@ -50,10 +70,26 @@ const UserInfoManager = () => {
                 "Other",
                 "Prefer not to say",
             ],
+            visability: "controlable",
         },
-        height: { label: "Height (in cm)", type: "number", options: [] },
-        occupation: { label: "Occupation", type: "text", options: [] },
-        education: { label: "Education", type: "text", options: [] },
+        height: {
+            label: "Height (in cm)",
+            type: "number",
+            options: [],
+            visability: "controlable",
+        },
+        occupation: {
+            label: "Occupation",
+            type: "text",
+            options: [],
+            visability: "controlable",
+        },
+        education: {
+            label: "Education",
+            type: "text",
+            options: [],
+            visability: "controlable",
+        },
         looking_for: {
             label: "Looking For",
             type: "select",
@@ -65,16 +101,19 @@ const UserInfoManager = () => {
                 "Friendship",
                 "Other",
             ],
+            visability: "controlable",
         },
         eye_color: {
             label: "Eye Color",
             type: "select",
             options: ["Brown", "Blue", "Green", "Hazel", "Grey", "Other"],
+            visability: "controlable",
         },
         hair_color: {
             label: "Hair Color",
             type: "select",
             options: ["Black", "Brown", "Blonde", "Red", "Grey", "Other"],
+            visability: "controlable",
         },
         ethnicity: {
             label: "Ethnicity",
@@ -92,6 +131,7 @@ const UserInfoManager = () => {
                 "Prefer not to say",
                 "Not applicable",
             ],
+            visability: "controlable",
         },
         interests: {
             label: "Interests",
@@ -100,6 +140,7 @@ const UserInfoManager = () => {
             search: searchInterests,
             query: interestsQuery,
             max: 6,
+            visability: "controlable",
         },
         languages: {
             label: "Languages",
@@ -108,6 +149,7 @@ const UserInfoManager = () => {
             search: searchLanguages,
             query: languagesQuery,
             max: 4,
+            visability: "controlable",
         },
         nationalities: {
             label: "Nationalities",
@@ -116,6 +158,7 @@ const UserInfoManager = () => {
             search: searchNationalities,
             query: nationaltiesQuery,
             max: 4,
+            visability: "controlable",
         },
     };
 
@@ -190,49 +233,72 @@ const UserInfoManager = () => {
                         {Object.keys(formFields).map((key) => {
                             const field = formFields[key];
                             return (
-                                <Form.Item
-                                    key={key}
-                                    label={field.label}
-                                    name={key}
-                                >
-                                    {field.type === "select" ? (
-                                        <Select>
-                                            {field.options.map((option) => (
-                                                <Option
-                                                    key={option}
-                                                    value={option}
-                                                >
-                                                    {option}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    ) : field.type === "tags" ? (
-                                        <Select
-                                            mode="multiple"
-                                            style={{ width: "100%" }}
-                                            placeholder="Select or add interests"
-                                            maxCount={field.max}
-                                            onSearch={(value) =>
-                                                dispatch(field.search(value))
-                                            }
-                                            optionLabelProp="label"
-                                            notFoundContent={null}
-                                        >
-                                            {field.query.length > 0 &&
-                                                field.query.map((interest) => (
+                                <>
+                                    <Form.Item
+                                        key={key}
+                                        label={field.label}
+                                        name={key}
+                                    >
+                                        {field.type === "select" ? (
+                                            <Select>
+                                                {field.options.map((option) => (
                                                     <Option
-                                                        key={interest.id}
-                                                        value={interest.name}
-                                                        label={interest.name}
+                                                        key={option}
+                                                        value={option}
                                                     >
-                                                        {interest.name}
+                                                        {option}
                                                     </Option>
                                                 ))}
-                                        </Select>
-                                    ) : (
-                                        <Input type={field.type} />
+                                            </Select>
+                                        ) : field.type === "tags" ? (
+                                            <Select
+                                                mode="multiple"
+                                                style={{ width: "100%" }}
+                                                placeholder="Select or add interests"
+                                                maxCount={field.max}
+                                                onSearch={(value) =>
+                                                    dispatch(
+                                                        field.search(value)
+                                                    )
+                                                }
+                                                optionLabelProp="label"
+                                                notFoundContent={null}
+                                            >
+                                                {field.query.length > 0 &&
+                                                    field.query.map(
+                                                        (interest) => (
+                                                            <Option
+                                                                key={
+                                                                    interest.id
+                                                                }
+                                                                value={
+                                                                    interest.name
+                                                                }
+                                                                label={
+                                                                    interest.name
+                                                                }
+                                                            >
+                                                                {interest.name}
+                                                            </Option>
+                                                        )
+                                                    )}
+                                            </Select>
+                                        ) : (
+                                            <Input type={field.type} />
+                                        )}
+                                    </Form.Item>
+                                    {field.visability === "controlable" && (
+                                        <Form.Item
+                                            name={`${key}_visible`}
+                                            valuePropName="checked"
+                                            initialValue={true} // Default visibility to true
+                                        >
+                                            <Checkbox>
+                                                Show {field.label}
+                                            </Checkbox>
+                                        </Form.Item>
                                     )}
-                                </Form.Item>
+                                </>
                             );
                         })}
                         <Button type="primary" htmlType="submit">

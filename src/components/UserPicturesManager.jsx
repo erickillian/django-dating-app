@@ -102,6 +102,14 @@ const UserPicturesManager = () => {
     const handleRemove = (file) => {
         // Call the deleteUserPicture action creator
         dispatch(deleteUserPicture(file.uid));
+        setFileList((prevFileList) => {
+            const updatedFileList = prevFileList.filter(
+                (item) => item.uid !== file.uid
+            );
+            // Optionally, rearrange the fileList here if you have a specific order or logic
+            // For example, you might want to sort by a 'date' property or simply leave them as is
+            return updatedFileList; // Return the updated list without the deleted file
+        });
     };
 
     const handleDragStart = useCallback((event) => {

@@ -87,6 +87,7 @@ class UserProfile(AbstractUser):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=50, blank=True)
+    generated_profile = models.BooleanField(default=False)
 
     # Personal Information
     birth_date = models.DateField(null=True, blank=True)
@@ -112,7 +113,6 @@ class UserProfile(AbstractUser):
         validators=[MinValueValidator(100), MaxValueValidator(250)],
     )  # Height in cm
 
-    # Contact Information
     phone_regex = RegexValidator(
         regex=r"^\+?1?\d{9,15}$",
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
@@ -123,7 +123,6 @@ class UserProfile(AbstractUser):
         blank=False,
         unique=True,
     )
-    generated_profile = models.BooleanField(default=False)
 
     interests = models.ManyToManyField(Interest, blank=True, related_name="users")
 
@@ -202,12 +201,28 @@ class UserProfile(AbstractUser):
         ],
     )
 
-    profile_visibility = models.CharField(
-        max_length=10,
-        choices=[("Public", "Public"), ("Private", "Private")],
-        default="Public",
-        help_text="Profile visibility settings",
-    )
+    profile_visibility = models.BooleanField(default=True)
+
+    visability_fields = [
+        "sexual_orientation",
+        "gender",
+        "height",
+        "interests",
+        "languages",
+        "nationalities",
+        "eye_color",
+        "hair_color",
+        "looking_for",
+        "ethnicity",
+        "occupation",
+        "education",
+    ]
+
+    # Visibility settings
+    for field_name in visability_fields:
+        locals()[f"{field_name}_visible"] = models.BooleanField(
+            default=True, help_text=f"Control visibility of {field_name}"
+        )
 
     @property
     def num_likes(self):
@@ -279,6 +294,10 @@ class UserProfile(AbstractUser):
         if self.full_name:
             return f"{self.full_name} - {self.phone_number}"
         return f"{self.phone_number}"
+
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
 
 
 def validate_file_extension(value):
