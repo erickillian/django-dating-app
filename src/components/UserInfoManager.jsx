@@ -222,7 +222,7 @@ const UserInfoManager = () => {
                                 ? [{ errors: [errors[key]] }]
                                 : [];
                             return (
-                                <>
+                                <div key={key}>
                                     <Form.Item
                                         key={key}
                                         label={field.label}
@@ -300,7 +300,7 @@ const UserInfoManager = () => {
                                             </Checkbox>
                                         </Form.Item>
                                     )}
-                                </>
+                                </div>
                             );
                         })}
                         <Button type="primary" htmlType="submit">
