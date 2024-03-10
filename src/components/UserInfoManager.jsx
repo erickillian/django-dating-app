@@ -37,19 +37,19 @@ const UserInfoManager = () => {
             label: "Name",
             type: "text",
             options: [],
-            visability: "none",
+            controllable: false,
         },
         birth_date: {
             label: "Birth Date",
             type: "date",
             options: [],
-            visability: "none",
+            controllable: false,
         },
         gender: {
             label: "Gender",
             type: "select",
             options: ["Male", "Female", "Other", "Prefer not to say"],
-            visability: "controlable",
+            controllable: true,
         },
         sexual_orientation: {
             label: "Sexual Orientation",
@@ -61,25 +61,25 @@ const UserInfoManager = () => {
                 "Other",
                 "Prefer not to say",
             ],
-            visability: "controlable",
+            controllable: true,
         },
         height: {
             label: "Height (in cm)",
             type: "number",
             options: [],
-            visability: "controlable",
+            controllable: true,
         },
         occupation: {
             label: "Occupation",
             type: "text",
             options: [],
-            visability: "controlable",
+            controllable: true,
         },
         education: {
             label: "Education",
             type: "text",
             options: [],
-            visability: "controlable",
+            controllable: true,
         },
         looking_for: {
             label: "Looking For",
@@ -92,19 +92,19 @@ const UserInfoManager = () => {
                 "Friendship",
                 "Other",
             ],
-            visability: "controlable",
+            controllable: true,
         },
         eye_color: {
             label: "Eye Color",
             type: "select",
             options: ["Brown", "Blue", "Green", "Hazel", "Grey", "Other"],
-            visability: "controlable",
+            controllable: true,
         },
         hair_color: {
             label: "Hair Color",
             type: "select",
             options: ["Black", "Brown", "Blonde", "Red", "Grey", "Other"],
-            visability: "controlable",
+            controllable: true,
         },
         ethnicity: {
             label: "Ethnicity",
@@ -122,7 +122,7 @@ const UserInfoManager = () => {
                 "Prefer not to say",
                 "Not applicable",
             ],
-            visability: "controlable",
+            controllable: true,
         },
         interests: {
             label: "Interests",
@@ -131,7 +131,7 @@ const UserInfoManager = () => {
             search: searchInterests,
             query: interestsQuery,
             max: 6,
-            visability: "controlable",
+            controllable: true,
         },
         languages: {
             label: "Languages",
@@ -140,7 +140,7 @@ const UserInfoManager = () => {
             search: searchLanguages,
             query: languagesQuery,
             max: 4,
-            visability: "controlable",
+            controllable: true,
         },
         nationalities: {
             label: "Nationalities",
@@ -149,7 +149,7 @@ const UserInfoManager = () => {
             search: searchNationalities,
             query: nationaltiesQuery,
             max: 4,
-            visability: "controlable",
+            controllable: true,
         },
     };
 
@@ -202,7 +202,6 @@ const UserInfoManager = () => {
 
         if (Object.keys(updates).length > 0) {
             dispatch(updateUserInfo(updates));
-            message.success("Profile updated successfully");
         }
     };
 
@@ -290,12 +289,13 @@ const UserInfoManager = () => {
                                             <Input type={field.type} />
                                         )}
                                     </Form.Item>
-                                    {field.visibility === "controlable" && (
+                                    {field.controllable && (
                                         <Form.Item
+                                            key={`${key}_visible`}
                                             name={`${key}_visible`}
                                             valuePropName="checked"
                                         >
-                                            <Checkbox>
+                                            <Checkbox key="checkbox">
                                                 Show {field.label}
                                             </Checkbox>
                                         </Form.Item>
