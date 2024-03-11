@@ -83,7 +83,12 @@ docker compose exec web python3 manage.py loadlanguages
 docker compose exec web python3 manage.py loadnationalities
 ```
 
+## Database access
 
+To connect to the a mysql shell run 
+```
+docker compose exec db mysql -uuser -ppassword mydatabase
+```
 
 ## TODO:
 
